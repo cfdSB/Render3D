@@ -27,6 +27,7 @@ RenderWindow::RenderWindow()
 
 RenderWindow::~RenderWindow()
 {
+	glfwTerminate();
 }
 
 GLFWwindow* RenderWindow::createGLFWWindow() {
@@ -68,11 +69,31 @@ void RenderWindow::startRenderLoop() {
 	}
 }
 
+void RenderWindow::addRenderObject(RenderObject & obj)
+{
+	renderObjects.push_back(obj);
+}
+
+
+
 void RenderWindow::render() {
-	//render code
+	//render background
 	//----------------
 	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	//----------
+	//loop through VAOs and draw 
+	//----------
+	for (RenderObject& rb : renderObjects) {
+		glBindVertexArray(rb.getVAO()); 
+		GLenum drawType;
+		if (rb.getDrawType() == 1) {
+			drawType = GL_TRIANGLES;
+		}
+		glUseProgram(rb.getShaderProgram());
+		glDrawArrays(drawType, 0, rb.getVertexCount());
+	}
 
 }
 
