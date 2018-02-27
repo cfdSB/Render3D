@@ -16,7 +16,7 @@ void printVector(Vec& v);
 Matrix convertGlmMatrix(glm::mat4& m);
 Vec create4Dpoint(Vec& point);
 Vec perspectiveDivision(Vec& p);
-RenderObject createRenderObject(std::vector<Vec>& v, std::vector<IndexedTriangle>& triangleIindices);
+RenderObject createRenderObject(std::vector<Vec>& v, std::vector<IndexedTriangle>& triangleIindices, Matrix& projection);
 
 const char* getVertexShaderSource();
 const char* getFragmentShaderSource(int);
@@ -134,15 +134,15 @@ int main() {
 	//-------
 	//Transform Coordinates
 	//--------
-	std::vector<Vec> transformedPoints;
-	for (Vec& v : allPoints) {
-		Vec point4D = create4Dpoint(v);
-		Matrix pointMat(4, 1);
-		pointMat.copyColumn(1, point4D);
-		Matrix transformedP = finalTransformMat * pointMat;
-		Vec transformedPnt = transformedP.getColumn(1);
-		transformedPoints.push_back(transformedPnt);
-	}
+	//std::vector<Vec> transformedPoints;
+	//for (Vec& v : allPoints) {
+	//	Vec point4D = create4Dpoint(v);
+	//	Matrix pointMat(4, 1);
+	//	pointMat.copyColumn(1, point4D);
+	//	Matrix transformedP = finalTransformMat * pointMat;
+	//	Vec transformedPnt = transformedP.getColumn(1);
+	//	transformedPoints.push_back(transformedPnt);
+	//}
 	/*std::cout << " Transformed Points" << std::endl;
 	for (Vec transP : transformedPoints) {
 		printVector(transP);
@@ -182,7 +182,7 @@ int main() {
 	//----------
 	//prepare data to render
 	//----------
-	RenderObject ro = createRenderObject(transformedPoints, triangles);
+	RenderObject ro = createRenderObject(allPoints, triangles, finalTransformMat);
 	
 
 	//--------
@@ -278,7 +278,7 @@ Vec perspectiveDivision(Vec& p) {
 	return pDivPnt;
 }
 
-RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTriangle>& triangleIndices) {
+RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTriangle>& triangleIndices, Matrix& projection) {
 	int coordinatesPerPoint = points.at(0).getSize();
 	int totalCoordinates = points.size() * coordinatesPerPoint;
 	float* data = new float[totalCoordinates];
@@ -330,16 +330,24 @@ RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTri
 	glVertexAttribPointer(0, coordinatesPerPoint, GL_FLOAT, GL_FALSE, coordinatesPerPoint * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
+	glUseProgram(shaderProgram1);
+	unsigned int uniformLocationProj = glGetUniformLocation(shaderProgram1, "projectionMat");
+	glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, projection.getDataPtr());
+	
+
 	RenderObject rb(VAO, shaderProgram1, 1, vertexCount);
 	return rb;
 }
 
 const char* getVertexShaderSource() {
 	const char* vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec4 aPos;\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"uniform mat4 projectionMat;\n"
 		"void main()\n"
 		"{\n"
-		"gl_Position = vec4(aPos.x, aPos.y, aPos.z, aPos.w);\n"
+		//"gl_Position = vec4(aPos.x, aPos.y, aPos.z, aPos.w);\n"
+		"vec4 v = vec4(aPos, 1.0);\n"
+		"gl_Position = projectionMat*v;\n"
 		"}\0";
 
 	return vertexShaderSource;
