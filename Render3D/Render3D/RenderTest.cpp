@@ -33,34 +33,78 @@ int main() {
 	//-----
 	//data in world coordinates
 	//------
-	Vec p1(3);
-	p1.addElement(1, 2.5).addElement(2, 2.5).addElement(3, 0.0);
-	Vec p2(3);
-	p2.addElement(1, 3.5).addElement(2, 2.5).addElement(3, 0.0);
-	Vec p3(3);
-	p3.addElement(1, 2.5).addElement(2, 2.5).addElement(3, 2.0);
-	Vec p4(3);
-	p4.addElement(1, 3.5).addElement(2, 2.5).addElement(3, 2.0);
-
 	std::vector<Vec> allPoints;
-	allPoints.push_back(p1);
-	allPoints.push_back(p2);
-	allPoints.push_back(p3);
-	allPoints.push_back(p4);
-
 	std::vector<IndexedTriangle> triangles;
-	IndexedTriangle t1(0, 1, 2);
-	IndexedTriangle t2(1, 2, 3);
-	triangles.push_back(t1);
-	triangles.push_back(t2);
+
+	//Vec p1(3);
+	//p1.addElement(1, 2.5).addElement(2, 2.5).addElement(3, 0.0);
+	//Vec p2(3);
+	//p2.addElement(1, 3.5).addElement(2, 2.5).addElement(3, 0.0);
+	//Vec p3(3);
+	//p3.addElement(1, 2.5).addElement(2, 2.5).addElement(3, 2.0);
+	//Vec p4(3);
+	//p4.addElement(1, 3.5).addElement(2, 2.5).addElement(3, 2.0);
+
+	//
+	//allPoints.push_back(p1);
+	//allPoints.push_back(p2);
+	//allPoints.push_back(p3);
+	//allPoints.push_back(p4);
+
+	//
+	//IndexedTriangle t1(0, 1, 2);
+	//IndexedTriangle t2(1, 2, 3);
+	//triangles.push_back(t1);
+	//triangles.push_back(t2);
+
+	//------------
+	//Read Binary STL file
+	//------------
+	std::ifstream file("classic_tea_pot.stl", std::ios::in | std::ios::binary);
+	if (file.is_open()) {
+		char* name = new char[80];
+		file.read(name, 80);
+		std::cout << "STL header is : " << name << std::endl;
+		UINT32 totalTriangles;
+		file.read(reinterpret_cast<char*>(&totalTriangles), sizeof(totalTriangles));
+		std::cout << "Number of triangles: " << totalTriangles << std::endl;
+		float normal[3], v1[3], v2[3], v3[3];
+		UINT16 attrib;
+	
+		for (int i = 1; i <= totalTriangles; i++) {
+			file.read(reinterpret_cast<char*>(&normal), sizeof(normal));
+			file.read(reinterpret_cast<char*>(&v1), sizeof(v1));
+			file.read(reinterpret_cast<char*>(&v2), sizeof(v2));
+			file.read(reinterpret_cast<char*>(&v3), sizeof(v3));
+			file.read(reinterpret_cast<char*>(&attrib), sizeof(attrib));
+			/*std::cout << "(" << v1[0] << ", " << v1[1] << ", " << v1[2] << ")" << std::endl;
+			std::cout << "(" << v2[0] << ", " << v2[1] << ", " << v2[2] << ")" << std::endl;
+			std::cout << "(" << v3[0] << ", " << v3[1] << ", " << v3[2] << ")" << std::endl;*/
+			Vec vert1(3);
+			vert1.addElement(1, v1[0]).addElement(2, v1[1]).addElement(3, v1[2]);
+			Vec vert2(3);
+			vert2.addElement(1, v2[0]).addElement(2, v2[1]).addElement(3, v2[2]);
+			Vec vert3(3);
+			vert3.addElement(1, v3[0]).addElement(2, v3[1]).addElement(3, v3[2]);
+	
+			allPoints.push_back(vert1);
+			allPoints.push_back(vert2);
+			allPoints.push_back(vert3);
+	
+			unsigned int totalPnts = allPoints.size();
+			IndexedTriangle tr(totalPnts - 3, totalPnts - 2, totalPnts - 1);
+			triangles.push_back(tr);
+		}
+		delete[] name;
+	}
 
 	//-----
 	//camera position and direction of looking
 	//-----
 	Vec cameraPosition(3);
-	cameraPosition.addElement(1, 3.0).addElement(2, -2.5).addElement(3, 1.0);
+	cameraPosition.addElement(1, 20.0).addElement(2, 20.0).addElement(3, 20.0);
 	Vec targetPoint(3);
-	targetPoint.addElement(1, 3.0).addElement(2, 2.75).addElement(3, 1.0);
+	targetPoint.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
 	Vec tmpLookUp(3);
 	tmpLookUp.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 1.0);
 
@@ -99,10 +143,10 @@ int main() {
 		Vec transformedPnt = transformedP.getColumn(1);
 		transformedPoints.push_back(transformedPnt);
 	}
-	std::cout << " Transformed Points" << std::endl;
+	/*std::cout << " Transformed Points" << std::endl;
 	for (Vec transP : transformedPoints) {
 		printVector(transP);
-	}
+	}*/
 
 	//---------
 	//clip space to NDC coordinates
@@ -113,10 +157,10 @@ int main() {
 		ndcCoordinates.push_back(perspectiveDividedPnt);
 	}
 
-	std::cout << " NDC Points" << std::endl;
-	for (Vec p : ndcCoordinates) {
-		printVector(p);
-	}
+	//std::cout << " NDC Points" << std::endl;
+	//for (Vec p : ndcCoordinates) {
+	//	printVector(p);
+	//}
 
 	//-----------
 	//initialize render window
