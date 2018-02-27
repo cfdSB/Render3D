@@ -92,7 +92,7 @@ void RenderWindow::render() {
 			drawType = GL_TRIANGLES;
 		}
 		glUseProgram(rb.getShaderProgram());
-		glDrawArrays(drawType, 0, rb.getVertexCount());
+		glDrawElements(drawType, rb.getVertexCount(), GL_UNSIGNED_INT, 0);
 	}
 
 }
