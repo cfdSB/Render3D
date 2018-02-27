@@ -151,11 +151,11 @@ int main() {
 	//---------
 	//clip space to NDC coordinates
 	//---------
-	std::vector<Vec> ndcCoordinates;
-	for (Vec pt : transformedPoints) {
-		Vec perspectiveDividedPnt = perspectiveDivision(pt);
-		ndcCoordinates.push_back(perspectiveDividedPnt);
-	}
+	//std::vector<Vec> ndcCoordinates;
+	//for (Vec pt : transformedPoints) {
+	//	Vec perspectiveDividedPnt = perspectiveDivision(pt);
+	//	ndcCoordinates.push_back(perspectiveDividedPnt);
+	//}
 
 	//std::cout << " NDC Points" << std::endl;
 	//for (Vec p : ndcCoordinates) {
@@ -182,7 +182,7 @@ int main() {
 	//----------
 	//prepare data to render
 	//----------
-	RenderObject ro = createRenderObject(ndcCoordinates, triangles);
+	RenderObject ro = createRenderObject(transformedPoints, triangles);
 	
 
 	//--------
@@ -336,10 +336,10 @@ RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTri
 
 const char* getVertexShaderSource() {
 	const char* vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
+		"layout (location = 0) in vec4 aPos;\n"
 		"void main()\n"
 		"{\n"
-		"gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		"gl_Position = vec4(aPos.x, aPos.y, aPos.z, aPos.w);\n"
 		"}\0";
 
 	return vertexShaderSource;
