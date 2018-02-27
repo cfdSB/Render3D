@@ -16,7 +16,7 @@ void printVector(Vec& v);
 Matrix convertGlmMatrix(glm::mat4& m);
 Vec create4Dpoint(Vec& point);
 Vec perspectiveDivision(Vec& p);
-RenderObject createRenderObject(std::vector<Vec>& v, std::vector<IndexedTriangle>& triangleIindices, Matrix& projection);
+RenderObject createRenderObject(std::vector<Vec>& v, std::vector<IndexedTriangle>& triangleIindices, Matrix& projection, Matrix& view);
 
 const char* getVertexShaderSource();
 const char* getFragmentShaderSource(int);
@@ -127,9 +127,9 @@ int main() {
 	//-------
 	//Final transformation matrix
 	//-------
-	Matrix finalTransformMat = projectionMat * lookAt;
+	/*Matrix finalTransformMat = projectionMat * lookAt;
 	std::cout << "Final Transform matrix:" << std::endl;
-	printMatrix(finalTransformMat);
+	printMatrix(finalTransformMat);*/
 
 	//-------
 	//Transform Coordinates
@@ -182,7 +182,7 @@ int main() {
 	//----------
 	//prepare data to render
 	//----------
-	RenderObject ro = createRenderObject(allPoints, triangles, finalTransformMat);
+	RenderObject ro = createRenderObject(allPoints, triangles, projectionMat, lookAt);
 	
 
 	//--------
@@ -278,7 +278,7 @@ Vec perspectiveDivision(Vec& p) {
 	return pDivPnt;
 }
 
-RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTriangle>& triangleIndices, Matrix& projection) {
+RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTriangle>& triangleIndices, Matrix& projection, Matrix& view) {
 	int coordinatesPerPoint = points.at(0).getSize();
 	int totalCoordinates = points.size() * coordinatesPerPoint;
 	float* data = new float[totalCoordinates];
@@ -334,6 +334,8 @@ RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTri
 	unsigned int uniformLocationProj = glGetUniformLocation(shaderProgram1, "projectionMat");
 	glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, projection.getDataPtr());
 	
+	unsigned int uniformLocationView = glGetUniformLocation(shaderProgram1, "viewMat");
+	glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getDataPtr());
 
 	RenderObject rb(VAO, shaderProgram1, 1, vertexCount);
 	return rb;
@@ -343,11 +345,12 @@ const char* getVertexShaderSource() {
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec3 aPos;\n"
 		"uniform mat4 projectionMat;\n"
+		"uniform mat4 viewMat;\n"
 		"void main()\n"
 		"{\n"
 		//"gl_Position = vec4(aPos.x, aPos.y, aPos.z, aPos.w);\n"
 		"vec4 v = vec4(aPos, 1.0);\n"
-		"gl_Position = projectionMat*v;\n"
+		"gl_Position = projectionMat*viewMat*v;\n"
 		"}\0";
 
 	return vertexShaderSource;
