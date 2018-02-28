@@ -9,14 +9,18 @@
 #include "RenderObject.h"
 #include "IndexedTriangle.h"
 #include <fstream>
+#include <math.h>
 
-Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp);
+Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, float positionScale);
 void printMatrix(Matrix& m);
 void printVector(Vec& v);
 Matrix convertGlmMatrix(glm::mat4& m);
 Vec create4Dpoint(Vec& point);
 Vec perspectiveDivision(Vec& p);
 RenderObject createRenderObject(std::vector<Vec>& v, std::vector<IndexedTriangle>& triangleIindices, Matrix& projection, Matrix& view);
+Vec findBoundingBox(std::vector<Vec>& allPoints);
+Vec findCenterPoint(Vec& boundingBox);
+float findFarthestPointDistance(std::vector<Vec>& allPoints, Vec& centerPoint);
 
 const char* getVertexShaderSource();
 const char* getFragmentShaderSource(int);
@@ -99,19 +103,42 @@ int main() {
 	}
 
 	//-----
+	//Bounding box and zoom off distance
+	//-----
+	Vec boundingBox = findBoundingBox(allPoints);
+	std::cout << "bounding box: " << std::endl;
+	printVector(boundingBox);
+
+	Vec centerPoint = findCenterPoint(boundingBox);
+	std::cout << "center point: " << std::endl;
+	printVector(centerPoint);
+
+	float minY = boundingBox.getElementAt(3);
+
+	float farthestPoint = findFarthestPointDistance(allPoints, centerPoint);
+	std::cout << "farthest point distance: " << farthestPoint << std::endl;
+
+	float perspectiveAngle = 45.0; //in degrees
+	float PI = 3.14159265;
+	float positionScale = 2.0* farthestPoint / tan(perspectiveAngle*PI / 180.0);
+	std::cout << "camera position scale: " << positionScale << std::endl;
+
+	//-----
 	//camera position and direction of looking
 	//-----
+
 	Vec cameraPosition(3);
-	cameraPosition.addElement(1, 20.0).addElement(2, 20.0).addElement(3, 20.0);
+	cameraPosition.addElement(1, centerPoint.getElementAt(1)).addElement(2, minY).addElement(3, centerPoint.getElementAt(3));
 	Vec targetPoint(3);
-	targetPoint.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+	//targetPoint.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+	targetPoint = centerPoint;
 	Vec tmpLookUp(3);
 	tmpLookUp.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 1.0);
 
 	//---------
 	//world to eye space conversion matrix - view matrix
 	//---------
-	Matrix lookAt = computeLookAt(cameraPosition, targetPoint, tmpLookUp);
+	Matrix lookAt = computeLookAt(cameraPosition, targetPoint, tmpLookUp, positionScale);
 	std::cout << "Look At matrix:" << std::endl;
 	printMatrix(lookAt);
 
@@ -194,7 +221,7 @@ int main() {
 	return 0;
 }
 
-Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp) {
+Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, float positionScale) {
 
 	Vec tmp = cameraPosition - targetPoint;
 	std::cout << "tmp vector" << std::endl;
@@ -219,7 +246,8 @@ Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp) {
 	printMatrix(cameraCS);
 
 	Matrix cameraPos(4, 4);
-	Vec negCameraPosition = cameraPosition.scale(-1.0);
+	Vec scaledCameraPosition = cameraDirection.scale(positionScale);
+	Vec negCameraPosition = scaledCameraPosition.scale(-1.0);
 	cameraPos.copyColumn(4, negCameraPosition);
 
 	std::cout << "Camera neg pos matrix" << std::endl;
@@ -434,4 +462,64 @@ int buildAndLinkShaderProgram(int vShader, int fragShader) {
 	glDeleteShader(fragmentShader1);
 
 	return shaderProgram;
+}
+
+Vec findBoundingBox(std::vector<Vec>& allPoints) {
+	Vec boundingBox(6);
+	
+	float minX=0, maxX=0, minY=0, maxY=0, minZ=0, maxZ=0;
+	for (Vec& v : allPoints) {
+
+		float vx = v.getElementAt(1);
+		float vy = v.getElementAt(2);
+		float vz = v.getElementAt(3);
+
+		if (vx < minX) {
+			minX = vx;
+		} else if (vx > maxX) {
+			maxX = vx;
+		}
+
+		if (vy < minY) {
+			minY = vy;
+		} else if (vy > maxY) {
+			maxY = vy;
+		}
+
+		if (vz < minZ) {
+			minZ = vz;
+		} else if (vz > maxZ) {
+			maxZ = vz;
+		}
+	}
+	boundingBox.addElement(1, minX).addElement(2, maxX).addElement(3, minY).addElement(4, maxY).addElement(5, minZ).addElement(6, maxZ);
+	return boundingBox;
+}
+
+Vec findCenterPoint(Vec& boundingBox) {
+	Vec centerPoint(3);
+	float centerX = (boundingBox.getElementAt(1) + boundingBox.getElementAt(2)) / 2.0f;
+	float centerY = (boundingBox.getElementAt(3)+ boundingBox.getElementAt(4)) / 2.0f;
+	float centerZ = (boundingBox.getElementAt(5) + boundingBox.getElementAt(6)) / 2.0f;
+
+	centerPoint.addElement(1, centerX).addElement(2, centerY).addElement(3, centerZ);
+
+	return centerPoint;
+}
+
+float findFarthestPointDistance(std::vector<Vec>& allPoints, Vec & centerPoint)
+{
+	float maxDist = 0.0;
+
+	for (Vec& v : allPoints) {
+		float xDiff = v.getElementAt(1) - centerPoint.getElementAt(1);
+		float yDiff = v.getElementAt(2) - centerPoint.getElementAt(2);
+		float zDiff = v.getElementAt(3) - centerPoint.getElementAt(3);
+		float dist = sqrt(pow(xDiff, 2) + pow(yDiff, 2) + pow(zDiff, 2));
+		if (dist > maxDist) {
+			maxDist = dist;
+		}
+	}
+
+	return maxDist;
 }
