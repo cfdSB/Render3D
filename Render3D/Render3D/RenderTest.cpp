@@ -120,7 +120,7 @@ int main() {
 
 	float perspectiveAngle = 45.0; //in degrees
 	float PI = 3.14159265;
-	float positionScale = 2.0* farthestPoint / tan(perspectiveAngle*PI / 180.0);
+	float positionScale = farthestPoint / tan(perspectiveAngle/2.0*PI / 180.0);
 	std::cout << "camera position scale: " << positionScale << std::endl;
 
 	//-----
@@ -128,7 +128,8 @@ int main() {
 	//-----
 
 	Vec cameraPosition(3);
-	cameraPosition.addElement(1, centerPoint.getElementAt(1)).addElement(2, minY).addElement(3, centerPoint.getElementAt(3));
+	//cameraPosition.addElement(1, centerPoint.getElementAt(1)).addElement(2, minY).addElement(3, centerPoint.getElementAt(3));
+	cameraPosition.addElement(1, 100.0).addElement(2, -100.0).addElement(3, 100.0);
 	Vec targetPoint(3);
 	//targetPoint.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
 	targetPoint = centerPoint;
@@ -141,6 +142,17 @@ int main() {
 	Matrix lookAt = computeLookAt(cameraPosition, targetPoint, tmpLookUp, positionScale);
 	std::cout << "Look At matrix:" << std::endl;
 	printMatrix(lookAt);
+
+	//-----------------
+	//GLM lookup matrix for test
+	//-----------------
+	glm::vec3 eye = glm::vec3(cameraPosition.getElementAt(1), cameraPosition.getElementAt(2), cameraPosition.getElementAt(3));
+	glm::vec3 center = glm::vec3(targetPoint.getElementAt(1), targetPoint.getElementAt(2), targetPoint.getElementAt(3));
+	glm::vec3 up = glm::vec3(tmpLookUp.getElementAt(1), tmpLookUp.getElementAt(2), tmpLookUp.getElementAt(3));
+	glm::mat4 view = glm::lookAt(eye, center, up);
+	Matrix glmLookAt = convertGlmMatrix(view);
+	std::cout << "GLM look at matrix " << std::endl;
+	printMatrix(glmLookAt);
 
 	//------
 	//eye space to clip space conversion matrix - projection matrix
@@ -202,9 +214,9 @@ int main() {
 	const char* fragmentShaderSource = getFragmentShaderSource(1);
 	fragmentShader1 = buildAndCompileFragmentShader(fragmentShaderSource);
 	shaderProgram1 = buildAndLinkShaderProgram(vertexShader, fragmentShader1);
-	//const char* fragmentShaderSourceBlack = getFragmentShaderSource(2);
-	//fragmentShader2 = buildAndCompileFragmentShader(fragmentShaderSourceBlack);
-	//shaderProgram2 = buildAndLinkShaderProgram(vertexShader, fragmentShader2);
+	const char* fragmentShaderSourceBlack = getFragmentShaderSource(2);
+	fragmentShader2 = buildAndCompileFragmentShader(fragmentShaderSourceBlack);
+	shaderProgram2 = buildAndLinkShaderProgram(vertexShader, fragmentShader2);
 
 	//----------
 	//prepare data to render
@@ -229,10 +241,12 @@ Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, floa
 	Vec cameraDirection = tmp.normalize();
 	std::cout << "camera direction" << std::endl;
 	printVector(cameraDirection);
+
 	Vec tmp2 = tmpLookUp ^ cameraDirection;
 	Vec cameraRight = tmp2.normalize();
 	std::cout << "camera Right" << std::endl;
 	printVector(cameraRight);
+
 	Vec tmp3 = cameraDirection ^ cameraRight;
 	Vec cameraUp = tmp3.normalize();
 	std::cout << "camera up" << std::endl;
@@ -246,7 +260,8 @@ Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, floa
 	printMatrix(cameraCS);
 
 	Matrix cameraPos(4, 4);
-	Vec scaledCameraPosition = cameraDirection.scale(positionScale);
+	Vec scaledCameraPosition = cameraDirection.scale(positionScale) + targetPoint;
+	//Vec scaledCameraPosition = cameraPosition;
 	Vec negCameraPosition = scaledCameraPosition.scale(-1.0);
 	cameraPos.copyColumn(4, negCameraPosition);
 

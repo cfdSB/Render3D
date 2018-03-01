@@ -55,7 +55,7 @@ Vec Vec::operator^(const Vec & v)
 		Vec cross(3);
 		cross.addElement(1, (data[1] * v.data[2] - data[2] * v.data[1]));		//Ay*Bz - Az*By
 		cross.addElement(2, (data[2] * v.data[0] - data[0] * v.data[2]));		//Az*Bx - Ax*Bz
-		cross.addElement(3, (data[0] * v.data[2] - data[1] * v.data[0]));		//Ax*By - Ay*Bx
+		cross.addElement(3, (data[0] * v.data[1] - data[1] * v.data[0]));		//Ax*By - Ay*Bx
 
 		return cross;
 	}
