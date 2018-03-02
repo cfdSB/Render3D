@@ -15,10 +15,10 @@ public:
 	virtual ~Vec();
 	Vec(const Vec& v);
 	Vec& operator=(const Vec& v);
-	Vec operator^(const Vec& v);	//cross product
-	Vec operator+(const Vec& v);	//addition
-	Vec operator-(const Vec& v);	//subtraction
-	Vec operator*(const Vec& v);	//dot product
+	Vec operator^(const Vec& v) const;	//cross product
+	Vec operator+(const Vec& v) const;	//addition
+	Vec operator-(const Vec& v) const;	//subtraction
+	Vec operator*(const Vec& v) const;	//dot product
 	Vec& addElement(int index, float element);
 	float getElementAt(int index) const { return data[index - 1]; };
 	Vec normalize();

@@ -18,6 +18,8 @@ public:
 	const Vec& getCameraDirection() { return cameraDirection; };
 	const Vec& getCameraRight(){ return cameraRight; };
 	const Vec& getCameraUp() { return cameraUp; };
+	const Vec& getCameraPosition() { return position; };
+	const Vec& getCameraTarget() { return target; }
 	void setViewParameters(Vec position, Vec target);
 	const Matrix& getLookAtMatrix();
 

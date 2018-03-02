@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include "RenderObject.h"
+#include "View.h"
+#include "Matrix.h"
 
 class RenderWindow
 {
@@ -13,6 +15,7 @@ private:
 	const unsigned int WIDTH = 800;
 	const unsigned int HEIGHT = 600;
 	std::vector<RenderObject> renderObjects;
+	View view;
 
 private:
 	void initGLFW();
@@ -26,6 +29,8 @@ public:
 	virtual ~RenderWindow();
 	void startRenderLoop();
 	void addRenderObject(RenderObject& obj);
+	void setViewParameters(Vec position, Vec targetPoint);
+	void updateLookAtMatrix(Matrix lookAt);
 	
 };
 

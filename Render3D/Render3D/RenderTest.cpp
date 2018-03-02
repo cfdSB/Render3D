@@ -158,6 +158,7 @@ int main() {
 	//Matrix lookAt = computeLookAt(cameraPosition, targetPoint, tmpLookUp, zoomOffDistance);
 	View view;
 	view.setViewParameters(cameraPosition, targetPoint);
+	w.setViewParameters(cameraPosition, targetPoint);
 	Matrix lookAt = view.getLookAtMatrix();
 	std::cout << "Look At matrix:" << std::endl;
 	DebugUtilities::printMatrix(lookAt);
@@ -168,6 +169,7 @@ int main() {
 	Vec direction = Vec(view.getCameraDirection());
 	Vec zoomOffCameraPosition = direction.scale(zoomOffDistance) + targetPoint;
 	view.setViewParameters(zoomOffCameraPosition, targetPoint);
+	w.setViewParameters(zoomOffCameraPosition, targetPoint);
 	lookAt = view.getLookAtMatrix();
 
 	//-----------------

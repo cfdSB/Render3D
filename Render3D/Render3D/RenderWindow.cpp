@@ -74,6 +74,15 @@ void RenderWindow::addRenderObject(RenderObject & obj)
 	renderObjects.push_back(obj);
 }
 
+void RenderWindow::setViewParameters(Vec position, Vec targetPoint)
+{
+	view.setViewParameters(position, targetPoint);
+}
+
+void RenderWindow::updateLookAtMatrix(Matrix lookAt)
+{
+	
+}
 
 
 void RenderWindow::render() {
@@ -92,6 +101,10 @@ void RenderWindow::render() {
 			drawType = GL_TRIANGLES;
 		}
 		glUseProgram(rb.getShaderProgram());
+		unsigned int uniformLocationView = glGetUniformLocation(rb.getShaderProgram(), "viewMat");
+		
+		glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getLookAtMatrix().getDataPtr());
+
 		glDrawElements(drawType, rb.getVertexCount(), GL_UNSIGNED_INT, 0);
 	}
 
@@ -99,8 +112,21 @@ void RenderWindow::render() {
 
 void RenderWindow::processInput(GLFWwindow *window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
+	}else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		Vec newCameraPosition = view.getCameraPosition() - view.getCameraDirection();
+		this->setViewParameters(newCameraPosition, view.getCameraTarget());
+	}else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+		Vec newCameraPosition = view.getCameraPosition() + view.getCameraDirection();
+		this->setViewParameters(newCameraPosition, view.getCameraTarget());
+	}else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		Vec newCameraPosition = view.getCameraPosition() - view.getCameraRight();
+		this->setViewParameters(newCameraPosition, view.getCameraTarget());
+	}else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		Vec newCameraPosition = view.getCameraPosition() + view.getCameraRight();
+		this->setViewParameters(newCameraPosition, view.getCameraTarget());
+	}
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

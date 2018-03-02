@@ -54,7 +54,7 @@ Vec& Vec::operator=(const Vec& v)
 	return *this;
 }
 
-Vec Vec::operator^(const Vec & v)
+Vec Vec::operator^(const Vec & v) const
 {
 	if (size == 3) {
 		Vec cross(3);
@@ -70,7 +70,7 @@ Vec Vec::operator^(const Vec & v)
 	
 }
 
-Vec Vec::operator+(const Vec& v)
+Vec Vec::operator+(const Vec& v) const
 {
 	Vec newVec(v.size);
 	for (int i = 0; i < size; i++) {
@@ -80,7 +80,7 @@ Vec Vec::operator+(const Vec& v)
 	return newVec;
 }
 
-Vec Vec::operator-(const Vec & v)
+Vec Vec::operator-(const Vec & v) const
 {
 	Vec newVec(v.size);
 	for (int i = 0; i < size; i++) {
@@ -90,7 +90,7 @@ Vec Vec::operator-(const Vec & v)
 	return newVec;
 }
 
-Vec Vec::operator*(const Vec & v)
+Vec Vec::operator*(const Vec & v) const
 {
 	return Vec(v.getSize());
 }
