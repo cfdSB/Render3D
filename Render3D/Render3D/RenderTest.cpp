@@ -10,10 +10,10 @@
 #include "IndexedTriangle.h"
 #include <fstream>
 #include <math.h>
+#include "View.h"
+#include "DebugUtilities.h"
 
 Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, float positionScale);
-void printMatrix(Matrix& m);
-void printVector(Vec& v);
 Matrix convertGlmMatrix(glm::mat4& m);
 Vec create4Dpoint(Vec& point);
 Vec perspectiveDivision(Vec& p);
@@ -21,6 +21,7 @@ RenderObject createRenderObject(std::vector<Vec>& v, std::vector<IndexedTriangle
 Vec findBoundingBox(std::vector<Vec>& allPoints);
 Vec findCenterPoint(Vec& boundingBox);
 float findFarthestPointDistance(std::vector<Vec>& allPoints, Vec& centerPoint);
+float findZoomOffDistance(std::vector<Vec>& allPoints, Vec& centerPoint);
 
 const char* getVertexShaderSource();
 const char* getFragmentShaderSource(int);
@@ -107,29 +108,44 @@ int main() {
 	//-----
 	Vec boundingBox = findBoundingBox(allPoints);
 	std::cout << "bounding box: " << std::endl;
-	printVector(boundingBox);
+	DebugUtilities::printVector(boundingBox);
 
 	Vec centerPoint = findCenterPoint(boundingBox);
 	std::cout << "center point: " << std::endl;
-	printVector(centerPoint);
+	DebugUtilities::printVector(centerPoint);
+
+	//------------------
+	//Find ZoomOff Distance
+	//--------------------
+	float zoomOffDistance = findZoomOffDistance(allPoints, centerPoint);
+	std::cout << "camera zoomOff distance: " << zoomOffDistance << std::endl;
+
+	//-----------
+	//initialize render window
+	//-----------
+	RenderWindow w;
+
+	//-------
+	//compile and link shader programs
+	//-------
+	const char* vertexShaderSource = getVertexShaderSource();
+	vertexShader = buildAndCompileVertexShader(vertexShaderSource);
+	const char* fragmentShaderSource = getFragmentShaderSource(1);
+	fragmentShader1 = buildAndCompileFragmentShader(fragmentShaderSource);
+	shaderProgram1 = buildAndLinkShaderProgram(vertexShader, fragmentShader1);
+	const char* fragmentShaderSourceBlack = getFragmentShaderSource(2);
+	fragmentShader2 = buildAndCompileFragmentShader(fragmentShaderSourceBlack);
+	shaderProgram2 = buildAndLinkShaderProgram(vertexShader, fragmentShader2);
+
+
+	//-----
+	//camera position and direction of looking to begin with
+	//-----
 
 	float minY = boundingBox.getElementAt(3);
-
-	float farthestPoint = findFarthestPointDistance(allPoints, centerPoint);
-	std::cout << "farthest point distance: " << farthestPoint << std::endl;
-
-	float perspectiveAngle = 45.0; //in degrees
-	float PI = 3.14159265;
-	float positionScale = farthestPoint / tan(perspectiveAngle/2.0*PI / 180.0);
-	std::cout << "camera position scale: " << positionScale << std::endl;
-
-	//-----
-	//camera position and direction of looking
-	//-----
-
 	Vec cameraPosition(3);
+	cameraPosition.addElement(1, 100.0).addElement(2, -100.0).addElement(3, 100.0);  //isometric +x,-y,+z
 	//cameraPosition.addElement(1, centerPoint.getElementAt(1)).addElement(2, minY).addElement(3, centerPoint.getElementAt(3));
-	cameraPosition.addElement(1, 100.0).addElement(2, -100.0).addElement(3, 100.0);
 	Vec targetPoint(3);
 	//targetPoint.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
 	targetPoint = centerPoint;
@@ -139,20 +155,31 @@ int main() {
 	//---------
 	//world to eye space conversion matrix - view matrix
 	//---------
-	Matrix lookAt = computeLookAt(cameraPosition, targetPoint, tmpLookUp, positionScale);
+	//Matrix lookAt = computeLookAt(cameraPosition, targetPoint, tmpLookUp, zoomOffDistance);
+	View view;
+	view.setViewParameters(cameraPosition, targetPoint);
+	Matrix lookAt = view.getLookAtMatrix();
 	std::cout << "Look At matrix:" << std::endl;
-	printMatrix(lookAt);
+	DebugUtilities::printMatrix(lookAt);
+
+	//-------------------
+	//set zoom off view in current view direction
+	//-------------------
+	Vec direction = Vec(view.getCameraDirection());
+	Vec zoomOffCameraPosition = direction.scale(zoomOffDistance) + targetPoint;
+	view.setViewParameters(zoomOffCameraPosition, targetPoint);
+	lookAt = view.getLookAtMatrix();
 
 	//-----------------
-	//GLM lookup matrix for test
+	//GLM lookup matrix for comparison with my Render3D matrix
 	//-----------------
 	glm::vec3 eye = glm::vec3(cameraPosition.getElementAt(1), cameraPosition.getElementAt(2), cameraPosition.getElementAt(3));
 	glm::vec3 center = glm::vec3(targetPoint.getElementAt(1), targetPoint.getElementAt(2), targetPoint.getElementAt(3));
 	glm::vec3 up = glm::vec3(tmpLookUp.getElementAt(1), tmpLookUp.getElementAt(2), tmpLookUp.getElementAt(3));
-	glm::mat4 view = glm::lookAt(eye, center, up);
-	Matrix glmLookAt = convertGlmMatrix(view);
+	glm::mat4 viewMat = glm::lookAt(eye, center, up);
+	Matrix glmLookAt = convertGlmMatrix(viewMat);
 	std::cout << "GLM look at matrix " << std::endl;
-	printMatrix(glmLookAt);
+	DebugUtilities::printMatrix(glmLookAt);
 
 	//------
 	//eye space to clip space conversion matrix - projection matrix
@@ -161,7 +188,7 @@ int main() {
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
 	Matrix projectionMat = convertGlmMatrix(projection);
 	std::cout << "Projection matrix:" << std::endl;
-	printMatrix(projectionMat);
+	DebugUtilities::printMatrix(projectionMat);
 
 	//-------
 	//Final transformation matrix
@@ -201,23 +228,7 @@ int main() {
 	//	printVector(p);
 	//}
 
-	//-----------
-	//initialize render window
-	//-----------
-	RenderWindow w;
-
-	//-------
-	//compile and link shader programs
-	//-------
-	const char* vertexShaderSource = getVertexShaderSource();
-	vertexShader = buildAndCompileVertexShader(vertexShaderSource);
-	const char* fragmentShaderSource = getFragmentShaderSource(1);
-	fragmentShader1 = buildAndCompileFragmentShader(fragmentShaderSource);
-	shaderProgram1 = buildAndLinkShaderProgram(vertexShader, fragmentShader1);
-	const char* fragmentShaderSourceBlack = getFragmentShaderSource(2);
-	fragmentShader2 = buildAndCompileFragmentShader(fragmentShaderSourceBlack);
-	shaderProgram2 = buildAndLinkShaderProgram(vertexShader, fragmentShader2);
-
+	
 	//----------
 	//prepare data to render
 	//----------
@@ -237,27 +248,27 @@ Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, floa
 
 	Vec tmp = cameraPosition - targetPoint;
 	std::cout << "tmp vector" << std::endl;
-	printVector(tmp);
+	DebugUtilities::printVector(tmp);
 	Vec cameraDirection = tmp.normalize();
 	std::cout << "camera direction" << std::endl;
-	printVector(cameraDirection);
+	DebugUtilities::printVector(cameraDirection);
 
 	Vec tmp2 = tmpLookUp ^ cameraDirection;
 	Vec cameraRight = tmp2.normalize();
 	std::cout << "camera Right" << std::endl;
-	printVector(cameraRight);
+	DebugUtilities::printVector(cameraRight);
 
 	Vec tmp3 = cameraDirection ^ cameraRight;
 	Vec cameraUp = tmp3.normalize();
 	std::cout << "camera up" << std::endl;
-	printVector(cameraUp);
+	DebugUtilities::printVector(cameraUp);
 
 	Matrix cameraCS(4, 4);
 	cameraCS.copyRow(1, cameraRight);
 	cameraCS.copyRow(2, cameraUp);
 	cameraCS.copyRow(3, cameraDirection);
 	std::cout << "Camera CS matrix" << std::endl;
-	printMatrix(cameraCS);
+	DebugUtilities::printMatrix(cameraCS);
 
 	Matrix cameraPos(4, 4);
 	Vec scaledCameraPosition = cameraDirection.scale(positionScale) + targetPoint;
@@ -266,29 +277,13 @@ Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, floa
 	cameraPos.copyColumn(4, negCameraPosition);
 
 	std::cout << "Camera neg pos matrix" << std::endl;
-	printMatrix(cameraPos);
+	DebugUtilities::printMatrix(cameraPos);
 
 	Matrix lookAt = cameraCS * cameraPos;
 	return lookAt;
 
 }
 
-void printMatrix(Matrix& m) {
-	for (int i = 1; i <= m.getNumberOfRows(); i++) {
-		for (int j = 1; j <= m.getNumberOfColumns(); j++) {
-			std::cout << m.getAt(i, j) << " ";
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-}
-
-void printVector(Vec& v) {
-	for (int i = 1; i <= v.getSize(); i++) {
-		std::cout << v.getElementAt(i) << " ";
-	}
-	std::cout << std::endl;
-}
 
 Matrix convertGlmMatrix(glm::mat4& m) {
 	Matrix convert(4, 4);
@@ -537,4 +532,16 @@ float findFarthestPointDistance(std::vector<Vec>& allPoints, Vec & centerPoint)
 	}
 
 	return maxDist;
+}
+
+float findZoomOffDistance(std::vector<Vec>& allPoints, Vec & centerPoint)
+{
+	float farthestPoint = findFarthestPointDistance(allPoints, centerPoint);
+	std::cout << "farthest point distance: " << farthestPoint << std::endl;
+
+	float perspectiveAngle = 45.0; //in degrees
+	float PI = 3.14159265;
+	float positionScale = farthestPoint / tan(perspectiveAngle / 2.0*PI / 180.0);
+
+	return positionScale;
 }

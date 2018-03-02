@@ -10,6 +10,7 @@ private:
 	void initializeVector();
 
 public:
+	Vec();
 	Vec(int size);
 	virtual ~Vec();
 	Vec(const Vec& v);

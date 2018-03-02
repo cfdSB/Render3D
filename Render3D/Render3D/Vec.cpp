@@ -8,6 +8,11 @@ void Vec::initializeVector()
 	}
 }
 
+Vec::Vec()
+{
+	data = nullptr;
+}
+
 Vec::Vec(int size): size(size)
 {
 	data = new float[size];
