@@ -19,7 +19,10 @@ RenderWindow::RenderWindow()
 	initGLFW();
 	window = createGLFWWindow();
 	glfwMakeContextCurrent(window);
+	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+	//glfwSetWindowUserPointer(window, window);
 	initGladLoader();
 	
 }
@@ -32,6 +35,7 @@ RenderWindow::~RenderWindow()
 
 GLFWwindow* RenderWindow::createGLFWWindow() {
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL);
+	
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -129,12 +133,5 @@ void RenderWindow::processInput(GLFWwindow *window)
 	}
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}
+
 

@@ -7,6 +7,7 @@
 #include "RenderObject.h"
 #include "View.h"
 #include "Matrix.h"
+#include "RenderWindowEventManager.h"
 
 class RenderWindow
 {
@@ -31,10 +32,11 @@ public:
 	void addRenderObject(RenderObject& obj);
 	void setViewParameters(Vec position, Vec targetPoint);
 	void updateLookAtMatrix(Matrix lookAt);
+	const View& getView() { return view; };
 	
 };
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
 
 #endif
 
