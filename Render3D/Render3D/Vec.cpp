@@ -117,7 +117,7 @@ Vec Vec::normalize()
 	return normVector;
 }
 
-Vec Vec::scale(float val)
+Vec Vec::scale(float val) const
 {
 	Vec scaled(size);
 	for (int i = 1; i <= size; i++) {

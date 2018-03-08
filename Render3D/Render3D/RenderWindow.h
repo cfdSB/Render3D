@@ -18,6 +18,12 @@ private:
 	std::vector<RenderObject> renderObjects;
 	View view;
 
+	struct MousePositionData {
+		double xPos=0.0, yPos = 0.0;
+	};
+
+	MousePositionData pos;
+
 private:
 	void initGLFW();
 	void processInput(GLFWwindow *window);
@@ -33,6 +39,10 @@ public:
 	void setViewParameters(Vec position, Vec targetPoint);
 	void updateLookAtMatrix(Matrix lookAt);
 	const View& getView() { return view; };
+	double getMouseXposition() { return pos.xPos; };
+	double getMouseYposition() { return pos.yPos; };
+	void setMouseXposition(double x) { pos.xPos = x; };
+	void setMouseYposition(double y) { pos.yPos = y; };
 	
 };
 

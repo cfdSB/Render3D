@@ -15,13 +15,13 @@ private:
 public:
 	View() { };
 	virtual ~View();
-	const Vec& getCameraDirection() { return cameraDirection; };
-	const Vec& getCameraRight(){ return cameraRight; };
-	const Vec& getCameraUp() { return cameraUp; };
-	const Vec& getCameraPosition() { return position; };
-	const Vec& getCameraTarget() { return target; }
+	const Vec& getCameraDirection() const { return cameraDirection; };
+	const Vec& getCameraRight() const { return cameraRight; };
+	const Vec& getCameraUp() const { return cameraUp; };
+	const Vec& getCameraPosition() const { return position; };
+	const Vec& getCameraTarget() const { return target; }
 	void setViewParameters(Vec position, Vec target);
-	const Matrix& getLookAtMatrix();
+	const Matrix& getLookAtMatrix() const;
 
 private:
 	void computeLookAtMatrix();

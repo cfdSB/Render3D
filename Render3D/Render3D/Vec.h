@@ -23,7 +23,7 @@ public:
 	float getElementAt(int index) const { return data[index - 1]; };
 	Vec normalize();
 	int getSize() const { return size; };
-	Vec scale(float val);
+	Vec scale(float val) const;
 	void initializeElements(float value);
 	void copy(const Vec& v);
 };

@@ -22,6 +22,8 @@ RenderWindow::RenderWindow()
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	//glfwSetWindowUserPointer(window, window);
 	initGladLoader();
 	

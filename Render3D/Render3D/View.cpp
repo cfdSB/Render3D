@@ -13,7 +13,7 @@ void View::setViewParameters(Vec position, Vec target)
 	computeLookAtMatrix();
 }
 
-const Matrix& View::getLookAtMatrix()
+const Matrix& View::getLookAtMatrix() const
 {
 	return lookAt;
 }
