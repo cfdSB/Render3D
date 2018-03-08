@@ -37,13 +37,19 @@ void cursor_position_callback(GLFWwindow * wnd, double xPos, double yPos)
 		window->setMouseYposition(yPos);
 
 		double xDiff = xPos - oldXpos;
+		double yDiff = yPos - oldYpos;
 
 		Vec distance = window->getView().getCameraPosition() - window->getView().getCameraTarget();
 		double dist = sqrt(pow(distance.getElementAt(1), 2) + pow(distance.getElementAt(2), 2) + pow(distance.getElementAt(3), 2)) -0.1;
-		double scale = (tan(0.785398/2.0)*dist*2.0 + tan(0.785398/2.0)*0.1*2.0)/800.0; 
-		double positionChange = xDiff * scale;
-		Vec newCameraPosition = window->getView().getCameraPosition() - window->getView().getCameraRight().scale(positionChange);
-		Vec newCameraTarget = window->getView().getCameraTarget() - window->getView().getCameraRight().scale(positionChange);
+		double distTmp = (tan(0.785398 / 2.0)*dist*2.0 + tan(0.785398 / 2.0)*0.1*2.0);
+		double xScale = distTmp/800.0; 
+		double yScale = distTmp / 600.0;
+		double positionXChange = xDiff * xScale;
+		double positionYChange = yDiff * yScale;
+		Vec newCameraPosition = window->getView().getCameraPosition() - window->getView().getCameraRight().scale(positionXChange);
+		newCameraPosition = newCameraPosition + window->getView().getCameraUp().scale(positionYChange);
+		Vec newCameraTarget = window->getView().getCameraTarget() - window->getView().getCameraRight().scale(positionXChange);
+		newCameraTarget = newCameraTarget + window->getView().getCameraUp().scale(positionYChange);
 		window->setViewParameters(newCameraPosition, newCameraTarget);
 	}
 
