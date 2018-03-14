@@ -26,30 +26,26 @@ void scroll_callback(GLFWwindow* wnd, double xoffset, double yoffset)
 void cursor_position_callback(GLFWwindow * wnd, double xPos, double yPos)
 {
 	if (glfwGetMouseButton(wnd, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+		
+		double positionXChange, positionYChange;
+		calculatePositionChange(wnd, xPos, yPos, &positionXChange, &positionYChange);
 		RenderWindow *window = static_cast<RenderWindow*> (glfwGetWindowUserPointer(wnd));
 
-		double oldXpos = window->getMouseXposition();
-		double oldYpos = window->getMouseYposition();
-		std::cout << "old position: " << oldXpos << " " << oldYpos << std::endl;
-		std::cout << "New position: " << xPos << " " << yPos << std::endl;
-
-		window->setMouseXposition(xPos);
-		window->setMouseYposition(yPos);
-
-		double xDiff = xPos - oldXpos;
-		double yDiff = yPos - oldYpos;
-
-		Vec distance = window->getView().getCameraPosition() - window->getView().getCameraTarget();
-		double dist = sqrt(pow(distance.getElementAt(1), 2) + pow(distance.getElementAt(2), 2) + pow(distance.getElementAt(3), 2)) -0.1;
-		double distTmp = (tan(0.785398 / 2.0)*dist*2.0 + tan(0.785398 / 2.0)*0.1*2.0);
-		double xScale = distTmp/800.0; 
-		double yScale = distTmp / 600.0;
-		double positionXChange = xDiff * xScale;
-		double positionYChange = yDiff * yScale;
 		Vec newCameraPosition = window->getView().getCameraPosition() - window->getView().getCameraRight().scale(positionXChange);
 		newCameraPosition = newCameraPosition + window->getView().getCameraUp().scale(positionYChange);
 		Vec newCameraTarget = window->getView().getCameraTarget() - window->getView().getCameraRight().scale(positionXChange);
 		newCameraTarget = newCameraTarget + window->getView().getCameraUp().scale(positionYChange);
+		window->setViewParameters(newCameraPosition, newCameraTarget);
+
+	}else if (glfwGetMouseButton(wnd, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+
+		double positionXChange, positionYChange;
+		calculatePositionChange(wnd, xPos, yPos, &positionXChange, &positionYChange);
+		RenderWindow *window = static_cast<RenderWindow*> (glfwGetWindowUserPointer(wnd));
+
+		Vec newCameraPosition = window->getView().getCameraPosition() - window->getView().getCameraRight().scale(positionXChange);
+		newCameraPosition = newCameraPosition + window->getView().getCameraUp().scale(positionYChange);
+		Vec newCameraTarget = window->getView().getCameraTarget();
 		window->setViewParameters(newCameraPosition, newCameraTarget);
 	}
 
@@ -57,11 +53,34 @@ void cursor_position_callback(GLFWwindow * wnd, double xPos, double yPos)
 
 void mouse_button_callback(GLFWwindow * wnd, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+	if ((button == GLFW_MOUSE_BUTTON_RIGHT || button == GLFW_MOUSE_BUTTON_LEFT) && action == GLFW_PRESS) {
 		RenderWindow *window = static_cast<RenderWindow*>(glfwGetWindowUserPointer(wnd));
 		double xpos, ypos;
 		glfwGetCursorPos(wnd, &xpos, &ypos);
 		window->setMouseXposition(xpos);
 		window->setMouseYposition(ypos);
 	}
+}
+
+void calculatePositionChange(GLFWwindow* wnd, double xPos, double yPos, double* xPosChange, double* yPosChange) {
+	
+	RenderWindow *window = static_cast<RenderWindow*> (glfwGetWindowUserPointer(wnd));
+	double oldXpos = window->getMouseXposition();
+	double oldYpos = window->getMouseYposition();
+	//std::cout << "old position: " << oldXpos << " " << oldYpos << std::endl;
+	//std::cout << "New position: " << xPos << " " << yPos << std::endl;
+
+	window->setMouseXposition(xPos);
+	window->setMouseYposition(yPos);
+
+	double xDiff = xPos - oldXpos;
+	double yDiff = yPos - oldYpos;
+
+	Vec distance = window->getView().getCameraPosition() - window->getView().getCameraTarget();
+	double dist = sqrt(pow(distance.getElementAt(1), 2) + pow(distance.getElementAt(2), 2) + pow(distance.getElementAt(3), 2)) - 0.1;
+	double distTmp = (tan(0.785398 / 2.0)*dist*2.0 + tan(0.785398 / 2.0)*0.1*2.0);
+	double xScale = distTmp / 800.0;
+	double yScale = distTmp / 600.0;
+	*xPosChange = xDiff * xScale;
+	*yPosChange = yDiff * yScale;
 }
