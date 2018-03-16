@@ -26,6 +26,7 @@ RenderWindow::RenderWindow()
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	//glfwSetWindowUserPointer(window, window);
 	initGladLoader();
+	configureGlobalOpenglState();
 	
 }
 
@@ -96,7 +97,7 @@ void RenderWindow::render() {
 	//----------------
 	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	glClear(GL_DEPTH_BUFFER_BIT);
 	//----------
 	//loop through VAOs and draw 
 	//----------
@@ -108,12 +109,19 @@ void RenderWindow::render() {
 		}
 		glUseProgram(rb.getShaderProgram());
 		unsigned int uniformLocationView = glGetUniformLocation(rb.getShaderProgram(), "viewMat");
+		unsigned int uniformLightLocation = glGetUniformLocation(rb.getShaderProgram(), "lightPos");
 		
 		glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getLookAtMatrix().getDataPtr());
+		glUniform3fv(uniformLightLocation, 1, view.getCameraPosition().getDataPtr());
 
 		glDrawElements(drawType, rb.getVertexCount(), GL_UNSIGNED_INT, 0);
 	}
 
+}
+
+void RenderWindow::configureGlobalOpenglState()
+{
+	glEnable(GL_DEPTH_TEST);
 }
 
 void RenderWindow::processInput(GLFWwindow *window)

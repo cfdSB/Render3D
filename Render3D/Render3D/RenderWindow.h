@@ -30,6 +30,7 @@ private:
 	GLFWwindow* createGLFWWindow();
 	void initGladLoader();
 	void render();
+	void configureGlobalOpenglState();
 
 public:
 	RenderWindow();

@@ -26,6 +26,7 @@ public:
 	Vec scale(float val) const;
 	void initializeElements(float value);
 	void copy(const Vec& v);
+	const float* getDataPtr() const { return data; };
 };
 #endif
 

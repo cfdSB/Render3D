@@ -17,7 +17,7 @@ Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, floa
 Matrix convertGlmMatrix(glm::mat4& m);
 Vec create4Dpoint(Vec& point);
 Vec perspectiveDivision(Vec& p);
-RenderObject createRenderObject(std::vector<Vec>& v, std::vector<IndexedTriangle>& triangleIindices, Matrix& projection, Matrix& view);
+RenderObject createRenderObject(std::vector<Vec>& v, std::vector<Vec>& normals, std::vector<IndexedTriangle>& triangleIindices, Matrix& projection, Matrix& view);
 Vec findBoundingBox(std::vector<Vec>& allPoints);
 Vec findCenterPoint(Vec& boundingBox);
 float findFarthestPointDistance(std::vector<Vec>& allPoints, Vec& centerPoint);
@@ -31,14 +31,14 @@ int buildAndLinkShaderProgram(int vShader, int fragShader);
 
 int vertexShader, fragmentShader1, fragmentShader2;
 int shaderProgram1, shaderProgram2;
-unsigned int VAO, VBO, EBO, vertexCount;
+unsigned int VAO, VBO, EBO, vertexCount, vboNormal;
 
 int main() {
 
 	//-----
 	//data in world coordinates
 	//------
-	std::vector<Vec> allPoints;
+	std::vector<Vec> allPoints, allNormals;
 	std::vector<IndexedTriangle> triangles;
 
 	//Vec p1(3);
@@ -66,6 +66,7 @@ int main() {
 	//Read Binary STL file
 	//------------
 	std::ifstream file("classic_tea_pot.stl", std::ios::in | std::ios::binary);
+	//std::ifstream file("plate.stl", std::ios::in | std::ios::binary);
 	if (file.is_open()) {
 		char* name = new char[80];
 		file.read(name, 80);
@@ -99,6 +100,14 @@ int main() {
 			unsigned int totalPnts = allPoints.size();
 			IndexedTriangle tr(totalPnts - 3, totalPnts - 2, totalPnts - 1);
 			triangles.push_back(tr);
+			
+			Vec normalVec(3);
+			normalVec.addElement(1, normal[0]).addElement(2, normal[1]).addElement(3, normal[2]);
+			//normalVec.addElement(1, 1.0).addElement(2, 0.0).addElement(3, 1.0);
+			
+			allNormals.push_back(normalVec);
+			allNormals.push_back(normalVec);
+			allNormals.push_back(normalVec);
 		}
 		delete[] name;
 	}
@@ -234,7 +243,7 @@ int main() {
 	//----------
 	//prepare data to render
 	//----------
-	RenderObject ro = createRenderObject(allPoints, triangles, projectionMat, lookAt);
+	RenderObject ro = createRenderObject(allPoints, allNormals, triangles, projectionMat, lookAt);
 	
 
 	//--------
@@ -318,15 +327,29 @@ Vec perspectiveDivision(Vec& p) {
 	return pDivPnt;
 }
 
-RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTriangle>& triangleIndices, Matrix& projection, Matrix& view) {
+RenderObject createRenderObject(std::vector<Vec>& points, std::vector<Vec>& normals, std::vector<IndexedTriangle>& triangleIndices, Matrix& projection, Matrix& view) {
 	int coordinatesPerPoint = points.at(0).getSize();
-	int totalCoordinates = points.size() * coordinatesPerPoint;
+	unsigned int totalCoordinates = points.size() * coordinatesPerPoint;
 	float* data = new float[totalCoordinates];
+	std::cout << "Total point coordinates: " << totalCoordinates << std::endl;
+
+	int coordinatesPerNormal = normals.at(0).getSize();
+	unsigned int totalNormalCoords = normals.size()*coordinatesPerNormal;
+	float* normalsData = new float[totalNormalCoords];
+	std::cout << "Total normal coordinates: " << totalNormalCoords << std::endl;
 
 	int count = 0;
 	for (Vec p : points) {
 		for (int i = 1; i <= p.getSize(); i++) {
 			data[count] = p.getElementAt(i);
+			count++;
+		}
+	}
+
+	count = 0;
+	for (Vec& n : normals) {
+		for (int i = 1; i <= n.getSize(); i++) {
+			normalsData[count] = n.getElementAt(i);
 			count++;
 		}
 	}
@@ -358,6 +381,7 @@ RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTri
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
+	glGenBuffers(1, &vboNormal);
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(VAO);
 
@@ -369,6 +393,12 @@ RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTri
 
 	glVertexAttribPointer(0, coordinatesPerPoint, GL_FLOAT, GL_FALSE, coordinatesPerPoint * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vboNormal);
+	glBufferData(GL_ARRAY_BUFFER, totalNormalCoords * sizeof(float), normalsData, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(1, coordinatesPerNormal, GL_FLOAT, GL_FALSE, coordinatesPerNormal * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
 
 	glUseProgram(shaderProgram1);
 	unsigned int uniformLocationProj = glGetUniformLocation(shaderProgram1, "projectionMat");
@@ -384,6 +414,9 @@ RenderObject createRenderObject(std::vector<Vec>& points, std::vector<IndexedTri
 const char* getVertexShaderSource() {
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec3 aPos;\n"
+		"layout (location = 1) in vec3 aNormal;\n"
+		"out vec3 normal;\n"
+		"out vec3 fragPos;\n"
 		"uniform mat4 projectionMat;\n"
 		"uniform mat4 viewMat;\n"
 		"void main()\n"
@@ -391,6 +424,8 @@ const char* getVertexShaderSource() {
 		//"gl_Position = vec4(aPos.x, aPos.y, aPos.z, aPos.w);\n"
 		"vec4 v = vec4(aPos, 1.0);\n"
 		"gl_Position = projectionMat*viewMat*v;\n"
+		"normal = aNormal;\n"
+		"fragPos = aPos;\n"
 		"}\0";
 
 	return vertexShaderSource;
@@ -401,10 +436,25 @@ const char* getFragmentShaderSource(int version) {
 	switch (version) {
 	case 1: //orange color
 		fragmentShaderSource = "#version 330 core\n"
+			"in vec3 normal;\n"
+			"in vec3 fragPos;\n"
 			"out vec4 FragColor;\n"
+			"uniform vec3 lightPos;\n"
 			"void main()\n"
 			"{\n"
-			"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+			"vec3 objectColor = vec3(1.0f, 0.5f, 0.2f);\n"
+			"vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);\n"
+			//"vec3 lightPos = vec3(20.0f, 00.0f, 20.0f);\n"
+			"//ambient\n"
+			"float ambientStrength = 0.1;\n"
+			"vec3 ambient = ambientStrength*lightColor;\n"
+			"//diffuse\n"
+			"vec3 norm = normalize(normal);\n"
+			"vec3 lightDir = normalize(lightPos - fragPos);\n"
+			"float diff = max(dot(norm, lightDir), 0.0);\n"
+			"vec3 diffuse = diff*lightColor;\n"
+			"vec3 result = (ambient+diffuse)*objectColor;\n"
+			"FragColor = vec4(result, 1.0f);\n"
 			"}\n\0";
 		break;
 	case 2: //black color
