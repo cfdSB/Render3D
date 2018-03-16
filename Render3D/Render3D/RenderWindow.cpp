@@ -86,6 +86,11 @@ void RenderWindow::setViewParameters(Vec position, Vec targetPoint)
 	view.setViewParameters(position, targetPoint);
 }
 
+void RenderWindow::setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight)
+{
+	view.setProjectionParameters(projectionAngle, scrWidth, scrHeight);
+}
+
 void RenderWindow::updateLookAtMatrix(Matrix lookAt)
 {
 	
@@ -110,8 +115,10 @@ void RenderWindow::render() {
 		glUseProgram(rb.getShaderProgram());
 		unsigned int uniformLocationView = glGetUniformLocation(rb.getShaderProgram(), "viewMat");
 		unsigned int uniformLightLocation = glGetUniformLocation(rb.getShaderProgram(), "lightPos");
+		unsigned int uniformLocationProj = glGetUniformLocation(rb.getShaderProgram(), "projectionMat");
 		
 		glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getLookAtMatrix().getDataPtr());
+		glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, view.getProjectionMatrix().getDataPtr());
 		glUniform3fv(uniformLightLocation, 1, view.getCameraPosition().getDataPtr());
 
 		glDrawElements(drawType, rb.getVertexCount(), GL_UNSIGNED_INT, 0);

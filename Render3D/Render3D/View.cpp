@@ -13,9 +13,13 @@ void View::setViewParameters(Vec position, Vec target)
 	computeLookAtMatrix();
 }
 
-const Matrix& View::getLookAtMatrix() const
+void View::setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight)
 {
-	return lookAt;
+	this->projectionAngle = projectionAngle;
+	this->scrWidth = scrWidth;
+	this->scrHeight = scrHeight;
+
+	computeProjectionMatrix();
 }
 
 void View::computeLookAtMatrix()
@@ -49,4 +53,25 @@ void View::computeLookAtMatrix()
 	//DebugUtilities::printMatrix(cameraCS);
 
 	lookAt = cameraCS * positionMat;
+}
+
+void View::computeProjectionMatrix()
+{
+	glm::mat4 projectionMat = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 100.0f);
+	projection = convertGlmMatrix(projectionMat);
+}
+
+Matrix View::convertGlmMatrix(glm::mat4& m) {
+	Matrix convert(4, 4);
+
+	for (int i = 1; i <= 4; i++) {
+		glm::vec4 vect = glm::vec4(m[i - 1]);
+		Vec v(4);
+		for (int j = 1; j <= 4; j++) {
+			v.addElement(j, vect[j - 1]);
+		}
+		convert.copyColumn(i, v);
+	}
+
+	return convert;
 }

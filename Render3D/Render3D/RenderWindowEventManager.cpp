@@ -8,6 +8,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
+	RenderWindow *wnd = static_cast<RenderWindow*>(glfwGetWindowUserPointer(window));
+	wnd->setProjectionParameters(45.0, width, height);
+
 }
 
 void scroll_callback(GLFWwindow* wnd, double xoffset, double yoffset)

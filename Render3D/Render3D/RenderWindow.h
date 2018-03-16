@@ -38,6 +38,7 @@ public:
 	void startRenderLoop();
 	void addRenderObject(RenderObject& obj);
 	void setViewParameters(Vec position, Vec targetPoint);
+	void setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight);
 	void updateLookAtMatrix(Matrix lookAt);
 	const View& getView() { return view; };
 	double getMouseXposition() { return pos.xPos; };

@@ -196,10 +196,13 @@ int main() {
 	//eye space to clip space conversion matrix - projection matrix
 	//------
 	//glm::mat4 projection = glm::ortho(0.0, 800.0, 0.0, 600.0, 0.1, 100.0);
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
+	/*glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
 	Matrix projectionMat = convertGlmMatrix(projection);
 	std::cout << "Projection matrix:" << std::endl;
-	DebugUtilities::printMatrix(projectionMat);
+	DebugUtilities::printMatrix(projectionMat);*/
+	w.setProjectionParameters(45.0, 800, 600);
+	view.setProjectionParameters(45.0, 800, 600);
+	Matrix projectionMat = view.getProjectionMatrix();
 
 	//-------
 	//Final transformation matrix
