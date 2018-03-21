@@ -250,7 +250,17 @@ int main() {
 	//----------
 	//prepare data to render
 	//----------
-	RenderObject ro = createRenderObject(part->getVertices(), part->getFaceNormals(), part->getTriangles(), projectionMat, lookAt);
+	//RenderObject ro = createRenderObject(part->getVertices(), part->getFaceNormals(), part->getTriangles(), projectionMat, lookAt);
+	RenderObject ro(part);
+	ro.setShaderProgram(shaderProgram1);
+	ro.setDrawType(1); //1 for triangular element data
+
+	glUseProgram(shaderProgram1);
+	unsigned int uniformLocationProj = glGetUniformLocation(shaderProgram1, "projectionMat");
+	glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, projectionMat.getDataPtr());
+
+	unsigned int uniformLocationView = glGetUniformLocation(shaderProgram1, "viewMat");
+	glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, lookAt.getDataPtr());
 	
 
 	//--------
@@ -334,89 +344,89 @@ Vec perspectiveDivision(Vec& p) {
 	return pDivPnt;
 }
 
-RenderObject createRenderObject(const std::vector<Vec*>* points, const std::vector<Vec*>* normals, const std::vector<IndexedTriangle*>* triangleIndices, Matrix& projection, Matrix& view) {
-	int coordinatesPerPoint = points->at(0)->getSize();
-	unsigned int totalCoordinates = points->size() * coordinatesPerPoint;
-	float* data = new float[totalCoordinates];
-	std::cout << "Total point coordinates: " << totalCoordinates << std::endl;
-
-	int coordinatesPerNormal = normals->at(0)->getSize();
-	unsigned int totalNormalCoords = normals->size()*coordinatesPerNormal;
-	float* normalsData = new float[totalNormalCoords];
-	std::cout << "Total normal coordinates: " << totalNormalCoords << std::endl;
-
-	int count = 0;
-	for (Vec* p : *points) {
-		for (int i = 1; i <= p->getSize(); i++) {
-			data[count] = p->getElementAt(i);
-			count++;
-		}
-	}
-
-	count = 0;
-	for (Vec* n : *normals) {
-		for (int i = 1; i <= n->getSize(); i++) {
-			normalsData[count] = n->getElementAt(i);
-			count++;
-		}
-	}
-
-	unsigned int totalIndices = triangleIndices->size() * 3;
-	unsigned int* indexData = new unsigned int[totalIndices];
-
-	int indexCount = 0;
-	for (IndexedTriangle* p : *triangleIndices) {
-		for (int i = 0; i < 3; i++) {
-			indexData[indexCount] = p->getIndices()[i];
-			indexCount++;
-		}
-	}
-
-	vertexCount = points->size();
-
-		//float data[] = {
-		//	-0.5f, -0.5f, 0.0f, // left  
-		//	0.5f, -0.5f, 0.0f, // right 
-		//	0.0f,  0.5f, 0.0f,  // top 
-		//	0.5f, -0.5f, 0.0f,
-		//	0.0f, 0.5f, 0.0f,
-		//	0.7f, 0.7f, 0.0f
-	
-		//};
-		//vertexCount = 6;
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-	glGenBuffers(1, &vboNormal);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, totalCoordinates*sizeof(float), data, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalIndices * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, coordinatesPerPoint, GL_FLOAT, GL_FALSE, coordinatesPerPoint * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vboNormal);
-	glBufferData(GL_ARRAY_BUFFER, totalNormalCoords * sizeof(float), normalsData, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(1, coordinatesPerNormal, GL_FLOAT, GL_FALSE, coordinatesPerNormal * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-
-	glUseProgram(shaderProgram1);
-	unsigned int uniformLocationProj = glGetUniformLocation(shaderProgram1, "projectionMat");
-	glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, projection.getDataPtr());
-	
-	unsigned int uniformLocationView = glGetUniformLocation(shaderProgram1, "viewMat");
-	glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getDataPtr());
-
-	RenderObject rb(VAO, shaderProgram1, 1, vertexCount);
-	return rb;
-}
+//RenderObject createRenderObject(const std::vector<Vec*>* points, const std::vector<Vec*>* normals, const std::vector<IndexedTriangle*>* triangleIndices, Matrix& projection, Matrix& view) {
+//	int coordinatesPerPoint = points->at(0)->getSize();
+//	unsigned int totalCoordinates = points->size() * coordinatesPerPoint;
+//	float* data = new float[totalCoordinates];
+//	std::cout << "Total point coordinates: " << totalCoordinates << std::endl;
+//
+//	int coordinatesPerNormal = normals->at(0)->getSize();
+//	unsigned int totalNormalCoords = normals->size()*coordinatesPerNormal;
+//	float* normalsData = new float[totalNormalCoords];
+//	std::cout << "Total normal coordinates: " << totalNormalCoords << std::endl;
+//
+//	int count = 0;
+//	for (Vec* p : *points) {
+//		for (int i = 1; i <= p->getSize(); i++) {
+//			data[count] = p->getElementAt(i);
+//			count++;
+//		}
+//	}
+//
+//	count = 0;
+//	for (Vec* n : *normals) {
+//		for (int i = 1; i <= n->getSize(); i++) {
+//			normalsData[count] = n->getElementAt(i);
+//			count++;
+//		}
+//	}
+//
+//	unsigned int totalIndices = triangleIndices->size() * 3;
+//	unsigned int* indexData = new unsigned int[totalIndices];
+//
+//	int indexCount = 0;
+//	for (IndexedTriangle* p : *triangleIndices) {
+//		for (int i = 0; i < 3; i++) {
+//			indexData[indexCount] = p->getIndices()[i];
+//			indexCount++;
+//		}
+//	}
+//
+//	vertexCount = points->size();
+//
+//		//float data[] = {
+//		//	-0.5f, -0.5f, 0.0f, // left  
+//		//	0.5f, -0.5f, 0.0f, // right 
+//		//	0.0f,  0.5f, 0.0f,  // top 
+//		//	0.5f, -0.5f, 0.0f,
+//		//	0.0f, 0.5f, 0.0f,
+//		//	0.7f, 0.7f, 0.0f
+//	
+//		//};
+//		//vertexCount = 6;
+//
+//	glGenVertexArrays(1, &VAO);
+//	glGenBuffers(1, &VBO);
+//	glGenBuffers(1, &EBO);
+//	glGenBuffers(1, &vboNormal);
+//	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+//	glBindVertexArray(VAO);
+//
+//	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//	glBufferData(GL_ARRAY_BUFFER, totalCoordinates*sizeof(float), data, GL_STATIC_DRAW);
+//
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalIndices * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
+//
+//	glVertexAttribPointer(0, coordinatesPerPoint, GL_FLOAT, GL_FALSE, coordinatesPerPoint * sizeof(float), (void*)0);
+//	glEnableVertexAttribArray(0);
+//
+//	glBindBuffer(GL_ARRAY_BUFFER, vboNormal);
+//	glBufferData(GL_ARRAY_BUFFER, totalNormalCoords * sizeof(float), normalsData, GL_STATIC_DRAW);
+//
+//	glVertexAttribPointer(1, coordinatesPerNormal, GL_FLOAT, GL_FALSE, coordinatesPerNormal * sizeof(float), (void*)0);
+//	glEnableVertexAttribArray(1);
+//
+//	glUseProgram(shaderProgram1);
+//	unsigned int uniformLocationProj = glGetUniformLocation(shaderProgram1, "projectionMat");
+//	glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, projection.getDataPtr());
+//	
+//	unsigned int uniformLocationView = glGetUniformLocation(shaderProgram1, "viewMat");
+//	glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getDataPtr());
+//
+//	RenderObject rb(VAO, shaderProgram1, 1, vertexCount);
+//	return rb;
+//}
 
 const char* getVertexShaderSource() {
 	const char* vertexShaderSource = "#version 330 core\n"
