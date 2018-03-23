@@ -13,6 +13,7 @@
 #include "View.h"
 #include "DebugUtilities.h"
 #include "CadImporter.h"
+#include "ShaderProgram.h"
 
 Matrix computeLookAt(Vec& cameraPosition, Vec& targetPoint, Vec& tmpLookUp, float positionScale);
 Matrix convertGlmMatrix(glm::mat4& m);
@@ -39,8 +40,8 @@ int main() {
 	//-----
 	//data in world coordinates
 	//------
-	std::vector<Vec> allPoints, allNormals;
-	std::vector<IndexedTriangle> triangles;
+	/*std::vector<Vec> allPoints, allNormals;
+	std::vector<IndexedTriangle> triangles;*/
 
 	//Vec p1(3);
 	//p1.addElement(1, 2.5).addElement(2, 2.5).addElement(3, 0.0);
@@ -119,20 +120,25 @@ int main() {
 	//-----
 	//Bounding box and zoom off distance
 	//-----
-	Vec boundingBox = findBoundingBox(part->getVertices());
+	//Vec boundingBox = findBoundingBox(part->getVertices());
+	Vec boundingBoxLower = part->getBoundingBox().getLowerLeftCorner();
+	Vec boundingBoxHigher = part->getBoundingBox().getUpperRightCorner();
+	Vec centerPoint = part->getBoundingBox().getCenterPoint();
 	std::cout << "bounding box: " << std::endl;
-	DebugUtilities::printVector(boundingBox);
-
-	Vec centerPoint = findCenterPoint(boundingBox);
-	std::cout << "center point: " << std::endl;
+	DebugUtilities::printVector(boundingBoxLower);
+	DebugUtilities::printVector(boundingBoxHigher);
 	DebugUtilities::printVector(centerPoint);
+
+	/*Vec centerPoint = findCenterPoint(boundingBox);
+	std::cout << "center point: " << std::endl;
+	DebugUtilities::printVector(centerPoint);*/
 
 	//------------------
 	//Find ZoomOff Distance
 	//--------------------
-	float zoomOffDistance = findZoomOffDistance(part->getVertices(), centerPoint);
+	/*float zoomOffDistance = findZoomOffDistance(part->getVertices(), centerPoint);
 	std::cout << "camera zoomOff distance: " << zoomOffDistance << std::endl;
-
+*/
 	//-----------
 	//initialize render window
 	//-----------
@@ -141,29 +147,29 @@ int main() {
 	//-------
 	//compile and link shader programs
 	//-------
-	const char* vertexShaderSource = getVertexShaderSource();
+	/*const char* vertexShaderSource = getVertexShaderSource();
 	vertexShader = buildAndCompileVertexShader(vertexShaderSource);
 	const char* fragmentShaderSource = getFragmentShaderSource(1);
 	fragmentShader1 = buildAndCompileFragmentShader(fragmentShaderSource);
 	shaderProgram1 = buildAndLinkShaderProgram(vertexShader, fragmentShader1);
 	const char* fragmentShaderSourceBlack = getFragmentShaderSource(2);
 	fragmentShader2 = buildAndCompileFragmentShader(fragmentShaderSourceBlack);
-	shaderProgram2 = buildAndLinkShaderProgram(vertexShader, fragmentShader2);
-
+	shaderProgram2 = buildAndLinkShaderProgram(vertexShader, fragmentShader2);*/
+	ShaderProgram shaderProg("vShader_transformations_color.vs", "fShader_transformations_color.fs");
 
 	//-----
 	//camera position and direction of looking to begin with
 	//-----
 
-	float minY = boundingBox.getElementAt(3);
+	//float minY = boundingBoxLower.getElementAt(3);
 	Vec cameraPosition(3);
 	cameraPosition.addElement(1, 100.0).addElement(2, -100.0).addElement(3, 100.0);  //isometric +x,-y,+z
-	//cameraPosition.addElement(1, centerPoint.getElementAt(1)).addElement(2, minY).addElement(3, centerPoint.getElementAt(3));
+	////cameraPosition.addElement(1, centerPoint.getElementAt(1)).addElement(2, minY).addElement(3, centerPoint.getElementAt(3));
 	Vec targetPoint(3);
-	//targetPoint.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+	////targetPoint.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
 	targetPoint = centerPoint;
-	Vec tmpLookUp(3);
-	tmpLookUp.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 1.0);
+	//Vec tmpLookUp(3);
+	//tmpLookUp.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 1.0);
 
 	//---------
 	//world to eye space conversion matrix - view matrix
@@ -179,22 +185,22 @@ int main() {
 	//-------------------
 	//set zoom off view in current view direction
 	//-------------------
-	Vec direction = Vec(view.getCameraDirection());
+	/*Vec direction = Vec(view.getCameraDirection());
 	Vec zoomOffCameraPosition = direction.scale(zoomOffDistance) + targetPoint;
 	view.setViewParameters(zoomOffCameraPosition, targetPoint);
 	w.setViewParameters(zoomOffCameraPosition, targetPoint);
-	lookAt = view.getLookAtMatrix();
+	lookAt = view.getLookAtMatrix();*/
 
 	//-----------------
 	//GLM lookup matrix for comparison with my Render3D matrix
 	//-----------------
-	glm::vec3 eye = glm::vec3(cameraPosition.getElementAt(1), cameraPosition.getElementAt(2), cameraPosition.getElementAt(3));
+	/*glm::vec3 eye = glm::vec3(cameraPosition.getElementAt(1), cameraPosition.getElementAt(2), cameraPosition.getElementAt(3));
 	glm::vec3 center = glm::vec3(targetPoint.getElementAt(1), targetPoint.getElementAt(2), targetPoint.getElementAt(3));
 	glm::vec3 up = glm::vec3(tmpLookUp.getElementAt(1), tmpLookUp.getElementAt(2), tmpLookUp.getElementAt(3));
 	glm::mat4 viewMat = glm::lookAt(eye, center, up);
 	Matrix glmLookAt = convertGlmMatrix(viewMat);
 	std::cout << "GLM look at matrix " << std::endl;
-	DebugUtilities::printMatrix(glmLookAt);
+	DebugUtilities::printMatrix(glmLookAt);*/
 
 	//------
 	//eye space to clip space conversion matrix - projection matrix
@@ -252,10 +258,12 @@ int main() {
 	//----------
 	//RenderObject ro = createRenderObject(part->getVertices(), part->getFaceNormals(), part->getTriangles(), projectionMat, lookAt);
 	RenderObject ro(part);
-	ro.setShaderProgram(shaderProgram1);
+	//ro.setShaderProgram(shaderProgram1);
+	ro.setShaderProgram(shaderProg.getProgramID());
 	ro.setDrawType(1); //1 for triangular element data
 
-	glUseProgram(shaderProgram1);
+	//glUseProgram(shaderProgram1);
+	shaderProg.use();
 	unsigned int uniformLocationProj = glGetUniformLocation(shaderProgram1, "projectionMat");
 	glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, projectionMat.getDataPtr());
 
@@ -543,48 +551,48 @@ int buildAndLinkShaderProgram(int vShader, int fragShader) {
 	return shaderProgram;
 }
 
-Vec findBoundingBox(const std::vector<Vec*>* allPoints) {
-	Vec boundingBox(6);
-	
-	float minX=0, maxX=0, minY=0, maxY=0, minZ=0, maxZ=0;
-	for (Vec* v : *allPoints) {
-
-		float vx = v->getElementAt(1);
-		float vy = v->getElementAt(2);
-		float vz = v->getElementAt(3);
-
-		if (vx < minX) {
-			minX = vx;
-		} else if (vx > maxX) {
-			maxX = vx;
-		}
-
-		if (vy < minY) {
-			minY = vy;
-		} else if (vy > maxY) {
-			maxY = vy;
-		}
-
-		if (vz < minZ) {
-			minZ = vz;
-		} else if (vz > maxZ) {
-			maxZ = vz;
-		}
-	}
-	boundingBox.addElement(1, minX).addElement(2, maxX).addElement(3, minY).addElement(4, maxY).addElement(5, minZ).addElement(6, maxZ);
-	return boundingBox;
-}
-
-Vec findCenterPoint(Vec& boundingBox) {
-	Vec centerPoint(3);
-	float centerX = (boundingBox.getElementAt(1) + boundingBox.getElementAt(2)) / 2.0f;
-	float centerY = (boundingBox.getElementAt(3)+ boundingBox.getElementAt(4)) / 2.0f;
-	float centerZ = (boundingBox.getElementAt(5) + boundingBox.getElementAt(6)) / 2.0f;
-
-	centerPoint.addElement(1, centerX).addElement(2, centerY).addElement(3, centerZ);
-
-	return centerPoint;
-}
+//Vec findBoundingBox(const std::vector<Vec*>* allPoints) {
+//	Vec boundingBox(6);
+//	
+//	float minX=0, maxX=0, minY=0, maxY=0, minZ=0, maxZ=0;
+//	for (Vec* v : *allPoints) {
+//
+//		float vx = v->getElementAt(1);
+//		float vy = v->getElementAt(2);
+//		float vz = v->getElementAt(3);
+//
+//		if (vx < minX) {
+//			minX = vx;
+//		} else if (vx > maxX) {
+//			maxX = vx;
+//		}
+//
+//		if (vy < minY) {
+//			minY = vy;
+//		} else if (vy > maxY) {
+//			maxY = vy;
+//		}
+//
+//		if (vz < minZ) {
+//			minZ = vz;
+//		} else if (vz > maxZ) {
+//			maxZ = vz;
+//		}
+//	}
+//	boundingBox.addElement(1, minX).addElement(2, maxX).addElement(3, minY).addElement(4, maxY).addElement(5, minZ).addElement(6, maxZ);
+//	return boundingBox;
+//}
+//
+//Vec findCenterPoint(Vec& boundingBox) {
+//	Vec centerPoint(3);
+//	float centerX = (boundingBox.getElementAt(1) + boundingBox.getElementAt(2)) / 2.0f;
+//	float centerY = (boundingBox.getElementAt(3)+ boundingBox.getElementAt(4)) / 2.0f;
+//	float centerZ = (boundingBox.getElementAt(5) + boundingBox.getElementAt(6)) / 2.0f;
+//
+//	centerPoint.addElement(1, centerX).addElement(2, centerY).addElement(3, centerZ);
+//
+//	return centerPoint;
+//}
 
 float findFarthestPointDistance(const std::vector<Vec*>* allPoints, Vec & centerPoint)
 {

@@ -45,7 +45,7 @@ public:
 	double getMouseYposition() { return pos.yPos; };
 	void setMouseXposition(double x) { pos.xPos = x; };
 	void setMouseYposition(double y) { pos.yPos = y; };
-	
+	const BoundingBox& getWindowObjectsBoundingBox();
 };
 
 

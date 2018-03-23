@@ -37,6 +37,7 @@ public:
 	unsigned int getVertexCount() const { return part->getVertices()->size(); };
 	void setShaderProgram(unsigned int shaderProg);
 	void setDrawType(int drawType);
+	const GeometryPart* getGeometryPart() { return part; };
 
 private:
 	void initializeData();

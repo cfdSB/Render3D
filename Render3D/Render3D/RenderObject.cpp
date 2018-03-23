@@ -19,12 +19,12 @@ RenderObject::~RenderObject()
 	/*if (vertexData) {
 		delete[] vertexData;
 	}*/
-	if (triangleindexData) {
+	/*if (triangleindexData) {
 		delete[] triangleindexData;
 	}
 	if (normalsData) {
 		delete[] normalsData;
-	}
+	}*/
 }
 
 void RenderObject::setShaderProgram(unsigned int shaderProg)

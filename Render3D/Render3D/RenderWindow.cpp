@@ -24,6 +24,7 @@ RenderWindow::RenderWindow()
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetKeyCallback(window, key_callback);
 	//glfwSetWindowUserPointer(window, window);
 	initGladLoader();
 	configureGlobalOpenglState();
@@ -94,6 +95,11 @@ void RenderWindow::setProjectionParameters(float projectionAngle, unsigned int s
 void RenderWindow::updateLookAtMatrix(Matrix lookAt)
 {
 	
+}
+
+const BoundingBox & RenderWindow::getWindowObjectsBoundingBox()
+{
+	return renderObjects.at(0).getGeometryPart()->getBoundingBox();
 }
 
 

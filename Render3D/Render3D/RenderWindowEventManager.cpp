@@ -7,10 +7,14 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-	RenderWindow *wnd = static_cast<RenderWindow*>(glfwGetWindowUserPointer(window));
-	wnd->setProjectionParameters(45.0, width, height);
 
+	int iconified = glfwGetWindowAttrib(window, GLFW_ICONIFIED);
+	
+	if (!iconified) { // when iconified (window minimized), it makes size 0,0 which creates problems for glm proj matrix calc 
+		glViewport(0, 0, width, height);
+		RenderWindow *wnd = static_cast<RenderWindow*>(glfwGetWindowUserPointer(window));
+		wnd->setProjectionParameters(45.0, width, height);
+	}
 }
 
 void scroll_callback(GLFWwindow* wnd, double xoffset, double yoffset)
@@ -86,4 +90,43 @@ void calculatePositionChange(GLFWwindow* wnd, double xPos, double yPos, double* 
 	double yScale = distTmp / 600.0;
 	*xPosChange = xDiff * xScale;
 	*yPosChange = yDiff * yScale;
+}
+
+void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+		if (glfwGetKey(wnd, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+			RenderWindow *window = static_cast<RenderWindow*> (glfwGetWindowUserPointer(wnd));
+			const BoundingBox box = window->getWindowObjectsBoundingBox();
+			float zoomOffScale = findZoomOffDistance(box);
+			std::cout << "camera zoomOff distance: " << zoomOffScale << std::endl;
+			Vec direction = Vec(window->getView().getCameraDirection());
+			Vec targetPoint = box.getCenterPoint();
+			Vec zoomOffCameraPosition = direction.scale(zoomOffScale) + targetPoint;
+			window->setViewParameters(zoomOffCameraPosition, targetPoint);
+		}
+	}
+	
+}
+
+float findZoomOffDistance(const BoundingBox& box)
+{
+	float farthestPoint = findDistance(box.getLowerLeftCorner(), box.getCenterPoint());
+	std::cout << "farthest point distance: " << farthestPoint << std::endl;
+
+	float perspectiveAngle = 45.0; //in degrees
+	float PI = 3.14159265;
+	float positionScale = farthestPoint / tan(perspectiveAngle / 2.0*PI / 180.0);
+
+	return positionScale;
+}
+
+float findDistance(const Vec& point1, const Vec& point2) {
+
+	float xDiff = point1.getElementAt(1) - point2.getElementAt(1);
+	float yDiff = point1.getElementAt(2) - point2.getElementAt(2);
+	float zDiff = point1.getElementAt(3) - point2.getElementAt(3);
+	float dist = sqrt(pow(xDiff, 2) + pow(yDiff, 2) + pow(zDiff, 2));
+	
+	return dist;
 }
