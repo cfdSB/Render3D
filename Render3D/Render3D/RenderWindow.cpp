@@ -78,7 +78,7 @@ void RenderWindow::startRenderLoop() {
 	}
 }
 
-void RenderWindow::addRenderObject(RenderObject & obj)
+void RenderWindow::addRenderObject(RenderObject* obj)
 {
 	renderObjects.push_back(obj);
 }
@@ -98,9 +98,9 @@ void RenderWindow::updateLookAtMatrix(Matrix lookAt)
 	
 }
 
-const BoundingBox & RenderWindow::getWindowObjectsBoundingBox()
+const BoundingBox* RenderWindow::getWindowObjectsBoundingBox()
 {
-	return renderObjects.at(0).getGeometryPart()->getBoundingBox();
+	return renderObjects.at(0)->getDisplayableObject()->getBoundingBox();
 }
 
 
@@ -113,22 +113,22 @@ void RenderWindow::render() {
 	//----------
 	//loop through VAOs and draw 
 	//----------
-	for (RenderObject& rb : renderObjects) {
-		glBindVertexArray(rb.getVAO()); 
+	for (RenderObject* rb : renderObjects) {
+		glBindVertexArray(rb->getVAO()); 
 		GLenum drawType;
-		if (rb.getDrawType() == 1) {
+		if (rb->getDrawType() == 1) {
 			drawType = GL_TRIANGLES;
 		}
-		glUseProgram(rb.getShaderProgram());
-		unsigned int uniformLocationView = glGetUniformLocation(rb.getShaderProgram(), "viewMat");
-		unsigned int uniformLightLocation = glGetUniformLocation(rb.getShaderProgram(), "lightPos");
-		unsigned int uniformLocationProj = glGetUniformLocation(rb.getShaderProgram(), "projectionMat");
+		glUseProgram(rb->getShaderProgram());
+		unsigned int uniformLocationView = glGetUniformLocation(rb->getShaderProgram(), "viewMat");
+		unsigned int uniformLightLocation = glGetUniformLocation(rb->getShaderProgram(), "lightPos");
+		unsigned int uniformLocationProj = glGetUniformLocation(rb->getShaderProgram(), "projectionMat");
 		
 		glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getLookAtMatrix().getDataPtr());
 		glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, view.getProjectionMatrix().getDataPtr());
 		glUniform3fv(uniformLightLocation, 1, view.getCameraPosition().getDataPtr());
 
-		glDrawElements(drawType, rb.getVertexCount(), GL_UNSIGNED_INT, 0);
+		glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
 	}
 
 }

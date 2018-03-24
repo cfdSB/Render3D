@@ -97,11 +97,11 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 	if (key == GLFW_KEY_R && action == GLFW_PRESS) {
 		if (glfwGetKey(wnd, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
 			RenderWindow *window = static_cast<RenderWindow*> (glfwGetWindowUserPointer(wnd));
-			const BoundingBox box = window->getWindowObjectsBoundingBox();
+			const BoundingBox *box = window->getWindowObjectsBoundingBox();
 			float zoomOffScale = findZoomOffDistance(box);
 			std::cout << "camera zoomOff distance: " << zoomOffScale << std::endl;
 			Vec direction = Vec(window->getView().getCameraDirection());
-			Vec targetPoint = box.getCenterPoint();
+			Vec targetPoint = box->getCenterPoint();
 			Vec zoomOffCameraPosition = direction.scale(zoomOffScale) + targetPoint;
 			window->setViewParameters(zoomOffCameraPosition, targetPoint);
 		}
@@ -109,9 +109,9 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 	
 }
 
-float findZoomOffDistance(const BoundingBox& box)
+float findZoomOffDistance(const BoundingBox *box)
 {
-	float farthestPoint = findDistance(box.getLowerLeftCorner(), box.getCenterPoint());
+	float farthestPoint = findDistance(box->getLowerLeftCorner(), box->getCenterPoint());
 	std::cout << "farthest point distance: " << farthestPoint << std::endl;
 
 	float perspectiveAngle = 45.0; //in degrees

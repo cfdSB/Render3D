@@ -3,28 +3,28 @@
 
 
 
-RenderObject::RenderObject(GeometryPart * part):part(part)
+RenderObject::RenderObject(DisplayableObject * part):part(part)
 {
 	initializeData();
 }
 
-RenderObject::RenderObject(unsigned int VAO, unsigned int shaderProgram, unsigned int drawType, unsigned int vertexCount)
-	:VAO(VAO), shaderProgram(shaderProgram), drawType(drawType), vertexCount(vertexCount)
-{
-}
+//RenderObject::RenderObject(unsigned int VAO, unsigned int shaderProgram, unsigned int drawType, unsigned int vertexCount)
+//	:VAO(VAO), shaderProgram(shaderProgram), drawType(drawType), vertexCount(vertexCount)
+//{
+//}
 
 
 RenderObject::~RenderObject()
 {
-	/*if (vertexData) {
+	if (vertexData) {
 		delete[] vertexData;
-	}*/
-	/*if (triangleindexData) {
-		delete[] triangleindexData;
+	}
+	if (elementIndexData) {
+		delete[] elementIndexData;
 	}
 	if (normalsData) {
 		delete[] normalsData;
-	}*/
+	}
 }
 
 void RenderObject::setShaderProgram(unsigned int shaderProg)
@@ -46,21 +46,22 @@ void RenderObject::initializeData()
 void RenderObject::buildDataArrays()
 {
 	
-	totalVertexCoordinates = part->getVertices()->size() * coordinatesPerVertex;
+	totalVertexCoordinates = part->getVertices().size() * coordinatesPerVertex;
 	vertexData = new float[totalVertexCoordinates];
 	std::cout << "Total point coordinates: " << totalVertexCoordinates << std::endl;
 
-	totalNormalCoordinates = part->getFaceNormals()->size()*coordinatesPerNormal;
+	totalNormalCoordinates = part->getVertexNormals().size()*coordinatesPerNormal;
 	normalsData = new float[totalNormalCoordinates];
 	std::cout << "Total normal coordinates: " << totalNormalCoordinates << std::endl;
 
-	unsigned int indicesPerElement = part->getTriangles()->at(0)->getIndexCount();
-	totalIndices = part->getTriangles()->size() * indicesPerElement;
-	triangleindexData = new unsigned int[totalIndices];
+	unsigned int indicesPerElement = part->getElementIndexCount();
+	const std::vector<IndexedElement*> indexedElements = part->getIndexedElements();
+	totalIndices = part->getIndexedElements().size() * indicesPerElement;
+	elementIndexData = new unsigned int[totalIndices];
 
 
 	int count = 0;
-	for (Vec* p : *(part->getVertices())) {
+	for (const Vec* p : part->getVertices()) {
 		for (int i = 1; i <= p->getSize(); i++) {
 			vertexData[count] = p->getElementAt(i);
 			count++;
@@ -68,7 +69,7 @@ void RenderObject::buildDataArrays()
 	}
 
 	count = 0;
-	for (Vec* n : *(part->getFaceNormals())) {
+	for (const Vec* n : part->getVertexNormals()) {
 		for (int i = 1; i <= n->getSize(); i++) {
 			normalsData[count] = n->getElementAt(i);
 			count++;
@@ -77,9 +78,9 @@ void RenderObject::buildDataArrays()
 
 	
 	int indexCount = 0;
-	for (const IndexedTriangle* p : *(part->getTriangles())) {
-		for (int i = 0; i < 3; i++) {
-			triangleindexData[indexCount] = p->getIndices()[i];
+	for (const IndexedElement* p : part->getIndexedElements()) {
+		for (int i = 0; i < p->getIndexCount(); i++) {
+			elementIndexData[indexCount] = p->getIndices()[i];
 			indexCount++;
 		}
 	}
@@ -98,7 +99,7 @@ void RenderObject::createVAO()
 	glBufferData(GL_ARRAY_BUFFER, totalVertexCoordinates * sizeof(float), vertexData, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalIndices * sizeof(unsigned int), triangleindexData, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalIndices * sizeof(unsigned int), elementIndexData, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, coordinatesPerVertex, GL_FLOAT, GL_FALSE, coordinatesPerVertex * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);

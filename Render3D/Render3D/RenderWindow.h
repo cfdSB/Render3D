@@ -15,7 +15,7 @@ private:
 	GLFWwindow *window;
 	const unsigned int WIDTH = 800;
 	const unsigned int HEIGHT = 600;
-	std::vector<RenderObject> renderObjects;
+	std::vector<RenderObject*> renderObjects;
 	View view;
 
 	struct MousePositionData {
@@ -36,7 +36,7 @@ public:
 	RenderWindow();
 	virtual ~RenderWindow();
 	void startRenderLoop();
-	void addRenderObject(RenderObject& obj);
+	void addRenderObject(RenderObject* obj);
 	void setViewParameters(Vec position, Vec targetPoint);
 	void setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight);
 	void updateLookAtMatrix(Matrix lookAt);
@@ -45,7 +45,7 @@ public:
 	double getMouseYposition() { return pos.yPos; };
 	void setMouseXposition(double x) { pos.xPos = x; };
 	void setMouseYposition(double y) { pos.yPos = y; };
-	const BoundingBox& getWindowObjectsBoundingBox();
+	const BoundingBox* getWindowObjectsBoundingBox();
 };
 
 

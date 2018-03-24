@@ -3,14 +3,14 @@
 
 #include <glad/glad.h>
 //#include <GLFW/glfw3.h>
-#include "GeometryPart.h"
+#include "DisplayableObject.h"
 #include <vector>
 
 class RenderObject
 {
 
 private:
-	GeometryPart *part;
+	DisplayableObject *part;
 
 	unsigned int VAO;
 	unsigned int vertexVBO, indicesEBO, normalsVBO;
@@ -20,7 +20,7 @@ private:
 	
 
 	float* vertexData;
-	unsigned int* triangleindexData;
+	unsigned int* elementIndexData;
 	float* normalsData;
 	unsigned int totalVertexCoordinates, totalNormalCoordinates, totalIndices;
 
@@ -28,16 +28,16 @@ private:
 	const int coordinatesPerNormal = 3;
 	 
 public:
-	RenderObject(GeometryPart *part);
-	RenderObject(unsigned int VAO, unsigned int shaderProgram, unsigned int drawType, unsigned int vertexCount);
+	RenderObject(DisplayableObject *part);
+	//RenderObject(unsigned int VAO, unsigned int shaderProgram, unsigned int drawType, unsigned int vertexCount);
 	virtual ~RenderObject();
 	unsigned int getVAO() const { return VAO; };
 	unsigned int getShaderProgram() const { return shaderProgram; };
 	unsigned int getDrawType() const { return drawType; };
-	unsigned int getVertexCount() const { return part->getVertices()->size(); };
+	unsigned int getVertexCount() const { return part->getVertices().size(); };
 	void setShaderProgram(unsigned int shaderProg);
 	void setDrawType(int drawType);
-	const GeometryPart* getGeometryPart() { return part; };
+	const DisplayableObject* getDisplayableObject() { return part; };
 
 private:
 	void initializeData();

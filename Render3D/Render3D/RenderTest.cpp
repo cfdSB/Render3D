@@ -121,9 +121,9 @@ int main() {
 	//Bounding box and zoom off distance
 	//-----
 	//Vec boundingBox = findBoundingBox(part->getVertices());
-	Vec boundingBoxLower = part->getBoundingBox().getLowerLeftCorner();
-	Vec boundingBoxHigher = part->getBoundingBox().getUpperRightCorner();
-	Vec centerPoint = part->getBoundingBox().getCenterPoint();
+	Vec boundingBoxLower = part->getBoundingBox()->getLowerLeftCorner();
+	Vec boundingBoxHigher = part->getBoundingBox()->getUpperRightCorner();
+	Vec centerPoint = part->getBoundingBox()->getCenterPoint();
 	std::cout << "bounding box: " << std::endl;
 	DebugUtilities::printVector(boundingBoxLower);
 	DebugUtilities::printVector(boundingBoxHigher);
@@ -257,10 +257,10 @@ int main() {
 	//prepare data to render
 	//----------
 	//RenderObject ro = createRenderObject(part->getVertices(), part->getFaceNormals(), part->getTriangles(), projectionMat, lookAt);
-	RenderObject ro(part);
+	RenderObject *ro = new RenderObject(part);
 	//ro.setShaderProgram(shaderProgram1);
-	ro.setShaderProgram(shaderProg.getProgramID());
-	ro.setDrawType(1); //1 for triangular element data
+	ro->setShaderProgram(shaderProg.getProgramID());
+	ro->setDrawType(1); //1 for triangular element data
 
 	//glUseProgram(shaderProgram1);
 	shaderProg.use();
@@ -276,6 +276,8 @@ int main() {
 	//--------
 	w.addRenderObject(ro);
 	w.startRenderLoop();
+
+	delete ro;
 
 	return 0;
 }
