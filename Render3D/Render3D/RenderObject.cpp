@@ -54,7 +54,8 @@ void RenderObject::buildDataArrays()
 	normalsData = new float[totalNormalCoordinates];
 	std::cout << "Total normal coordinates: " << totalNormalCoordinates << std::endl;
 
-	totalIndices = part->getTriangles()->size() * 3;
+	unsigned int indicesPerElement = part->getTriangles()->at(0)->getIndexCount();
+	totalIndices = part->getTriangles()->size() * indicesPerElement;
 	triangleindexData = new unsigned int[totalIndices];
 
 
@@ -76,7 +77,7 @@ void RenderObject::buildDataArrays()
 
 	
 	int indexCount = 0;
-	for (IndexedTriangle* p : *(part->getTriangles())) {
+	for (const IndexedTriangle* p : *(part->getTriangles())) {
 		for (int i = 0; i < 3; i++) {
 			triangleindexData[indexCount] = p->getIndices()[i];
 			indexCount++;

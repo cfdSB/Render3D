@@ -1,12 +1,13 @@
 #ifndef INDEXEDTRIANGLE_H
 #define INDEXEDTRIANGLE_H
-class IndexedTriangle
+#include "IndexedElement.h"
+class IndexedTriangle:public IndexedElement
 {
 private:
-	unsigned int indices[3];
+	
 public:
 	IndexedTriangle(unsigned int i1, unsigned int i2, unsigned int i3);
-	unsigned int* getIndices();
+	IndexedTriangle();
 	~IndexedTriangle();
 };
 #endif 
