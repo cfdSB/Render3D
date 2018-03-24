@@ -73,7 +73,8 @@ void RenderWindow::startRenderLoop() {
 		//----------------
 
 		glfwSwapBuffers(window);
-		glfwPollEvents();
+		//glfwPollEvents();
+		glfwWaitEvents(); //sleeps the thread and waits for event to occur
 	}
 }
 
