@@ -38,7 +38,7 @@ RenderWindow::~RenderWindow()
 }
 
 GLFWwindow* RenderWindow::createGLFWWindow() {
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Render3D", NULL, NULL);
 	
 	if (window == NULL)
 	{

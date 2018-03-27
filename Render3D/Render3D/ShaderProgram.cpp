@@ -31,7 +31,7 @@ std::string* ShaderProgram::readSource(std::string filePath)
 		codeFile.close();
 		codeString = new std::string(sourceStream.str());
 		//code = codeString.c_str();
-		std::cout << codeString << std::endl;
+		//std::cout << codeString << std::endl;
 	}
 	catch (std::ifstream::failure e)
 	{
