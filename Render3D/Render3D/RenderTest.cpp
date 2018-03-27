@@ -114,7 +114,7 @@ int main() {
 	//	delete[] name;
 	//}
 	CadImporter importer;
-	std::string fileName = "fuel_tank.stl";
+	std::string fileName = "classic_tea_pot.stl";
 	GeometryPart *part = importer.importSTL(fileName);
 
 	//-----
