@@ -28,6 +28,15 @@ void DisplayableObject::updateBoundingBox(Vec& newPoint)
 	float vy = newPoint.getElementAt(2);
 	float vz = newPoint.getElementAt(3);
 
+	if (!box->isInitialized()) {
+		Vec firstPoint = Vec(3);
+		firstPoint.addElement(1, vx).addElement(2, vy).addElement(3, vz);
+		box->setLowerLeftCorner(firstPoint);
+		box->setUpperRightCorner(firstPoint);
+		box->setInitialized(true);
+		return;
+	}
+
 	float minX = box->getLowerLeftCorner().getElementAt(1);
 	float minY = box->getLowerLeftCorner().getElementAt(2);
 	float minZ = box->getLowerLeftCorner().getElementAt(3);

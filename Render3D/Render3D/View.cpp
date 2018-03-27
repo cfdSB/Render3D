@@ -57,7 +57,7 @@ void View::computeLookAtMatrix()
 
 void View::computeProjectionMatrix()
 {
-	glm::mat4 projectionMat = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 100.0f);
+	glm::mat4 projectionMat = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 1.0e5f);
 	projection = convertGlmMatrix(projectionMat);
 }
 

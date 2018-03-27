@@ -24,9 +24,12 @@ void scroll_callback(GLFWwindow* wnd, double xoffset, double yoffset)
 		std::cout << "Error while getting window pointer" << std::endl;
 		return;
 	}
+	const BoundingBox *box = window->getWindowObjectsBoundingBox();
+	float partRange = findDistance(box->getLowerLeftCorner(), box->getUpperRightCorner());
+	float scale = (partRange / 20.0)*yoffset;
 	View view = window->getView();
 	Vec newDirection = Vec(view.getCameraDirection());
-	Vec newCameraPosition = view.getCameraPosition() + newDirection.scale(yoffset);
+	Vec newCameraPosition = view.getCameraPosition() + newDirection.scale(scale);
 	window->setViewParameters(newCameraPosition, view.getCameraTarget());
 }
 
