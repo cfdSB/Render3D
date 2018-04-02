@@ -90,9 +90,13 @@ Vec Vec::operator-(const Vec & v) const
 	return newVec;
 }
 
-Vec Vec::operator*(const Vec & v) const
+float Vec::operator*(const Vec & v) const
 {
-	return Vec(v.getSize());
+	float dotProduct = 0.0;
+	for (int i = 0; i < size; i++) {
+		dotProduct = dotProduct + this->data[i] * v.data[i];
+	}
+	return dotProduct;
 }
 
 Vec & Vec::addElement(int index, float element)
