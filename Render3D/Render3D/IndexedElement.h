@@ -11,7 +11,7 @@ public:
 	virtual const unsigned int* getIndices() const;
 protected:
 	IndexedElement(unsigned int indexCount);
-	unsigned int* getIndices();
+	unsigned int* getIndicesEditable();
 };
 #endif
 

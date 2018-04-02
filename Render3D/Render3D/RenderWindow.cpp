@@ -119,6 +119,9 @@ void RenderWindow::render() {
 		if (rb->getDrawType() == 1) {
 			drawType = GL_TRIANGLES;
 		}
+		else if (rb->getDrawType() == 2) {
+			drawType = GL_LINES;
+		}
 		glUseProgram(rb->getShaderProgram());
 		unsigned int uniformLocationView = glGetUniformLocation(rb->getShaderProgram(), "viewMat");
 		unsigned int uniformLightLocation = glGetUniformLocation(rb->getShaderProgram(), "lightPos");

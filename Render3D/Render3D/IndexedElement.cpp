@@ -7,7 +7,7 @@ IndexedElement::IndexedElement(unsigned int indexCount): indexCount(indexCount)
 	indices = new unsigned int[indexCount];
 }
 
-unsigned int * IndexedElement::getIndices()
+unsigned int * IndexedElement::getIndicesEditable()
 {
 	return indices;
 }

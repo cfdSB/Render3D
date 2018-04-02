@@ -14,11 +14,13 @@
 #include "DebugUtilities.h"
 #include "CadImporter.h"
 #include "ShaderProgram.h"
+#include "PlaneSectionPart.h"
 
 int main() {
 
 	CadImporter importer;
-	std::string fileName = "classic_tea_pot.stl";
+	//std::string fileName = "classic_tea_pot.stl";
+	std::string fileName = "fuel_tank.stl";
 	GeometryPart *part = importer.importSTL(fileName);
 
 	//-----
@@ -32,6 +34,32 @@ int main() {
 	DebugUtilities::printVector(boundingBoxLower);
 	DebugUtilities::printVector(boundingBoxHigher);
 	DebugUtilities::printVector(centerPoint);
+
+	//--------
+	//compute plane section
+	//---------
+	PlaneSectionPart pPart(part);
+	Vec normalV(3);
+	normalV.addElement(1, 0.0).addElement(2, 1.0).addElement(3, 0.0);
+	Vec origin(3);
+	origin.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+	pPart.setNormal(normalV);
+	pPart.setOrigin(origin);
+	pPart.computePlaneSection();
+
+	/*Vec p1(3);
+	p1.addElement(1, -1.0).addElement(2, 2.5).addElement(3, 2.8);
+	Vec p2(3);
+	p2.addElement(1, 1.0).addElement(2, 5.0).addElement(3, 5.6);
+	Vec* intersect = pPart.computePlaneIntersectionPoint(p1, p2);
+	if (intersect != nullptr) {
+		std::cout << " intersection point: " << intersect->getElementAt(1) << ","
+			<< intersect->getElementAt(2) << "," << intersect->getElementAt(3) << std::endl;
+	}
+	else {
+		std::cout << "No intersection Point" << std::endl;
+	}
+*/
 
 	//-----------
 	//initialize render window
@@ -71,9 +99,13 @@ int main() {
 	//----------
 	//prepare data to render
 	//----------
-	RenderObject *ro = new RenderObject(part);
+	//RenderObject *ro = new RenderObject(part);
+	//ro->setShaderProgram(shaderProg.getProgramID());
+	//ro->setDrawType(1); //1 for triangular element data
+
+	RenderObject *ro = new RenderObject(&pPart);
 	ro->setShaderProgram(shaderProg.getProgramID());
-	ro->setDrawType(1); //1 for triangular element data
+	ro->setDrawType(2);	//2 for lines
 
 	//--------
 	//add data to Render window
@@ -86,6 +118,7 @@ int main() {
 	window.startRenderLoop();
 
 	delete ro;
+
 
 	return 0;
 }
