@@ -1,22 +1,22 @@
 #ifndef BOUNDINGBOX_H
 #define BOUNDINGBOX_H
 
-#include "Vec.h"
+#include "Point3D.h"
 class BoundingBox
 {
 private:
-	Vec lowestCorner = Vec(3);
-	Vec highestCorner = Vec(3);
-	Vec centerPoint = Vec(3);
+	Point3D * lowestCorner; 
+	Point3D *highestCorner;
+	Point3D *centerPoint;
 	bool initialized = false;
 public:
 	BoundingBox();
 	~BoundingBox();
-	const Vec& getLowerLeftCorner() const { return lowestCorner; };
-	const Vec& getUpperRightCorner() const { return highestCorner; };
-	const Vec& getCenterPoint() const { return centerPoint; };
-	void setLowerLeftCorner(const Vec& v);
-	void setUpperRightCorner(const Vec& v);
+	const Point3D& getLowerLeftCorner() const { return *lowestCorner; };
+	const Point3D& getUpperRightCorner() const { return *highestCorner; };
+	const Point3D& getCenterPoint() const { return *centerPoint; };
+	void setLowerLeftCorner(const Point3D& v);
+	void setUpperRightCorner(const Point3D& v);
 	void setInitialized(bool init) { initialized = init; };
 	bool isInitialized() { return initialized; };
 

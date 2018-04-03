@@ -61,9 +61,9 @@ void RenderObject::buildDataArrays()
 
 
 	int count = 0;
-	for (const Vec* p : part->getVertices()) {
-		for (int i = 1; i <= p->getSize(); i++) {
-			vertexData[count] = p->getElementAt(i);
+	for (const Point3D* p : part->getVertices()) {
+		for (int i = 1; i <= p->getCoordinates()->getSize(); i++) {
+			vertexData[count] = p->getCoordinates()->getElementAt(i);
 			count++;
 		}
 	}

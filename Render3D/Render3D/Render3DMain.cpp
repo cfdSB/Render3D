@@ -26,9 +26,9 @@ int main() {
 	//-----
 	//Bounding box and zoom off distance
 	//-----
-	Vec boundingBoxLower = part->getBoundingBox()->getLowerLeftCorner();
-	Vec boundingBoxHigher = part->getBoundingBox()->getUpperRightCorner();
-	Vec centerPoint = part->getBoundingBox()->getCenterPoint();
+	Vec boundingBoxLower = *(part->getBoundingBox()->getLowerLeftCorner().getCoordinates());
+	Vec boundingBoxHigher = *(part->getBoundingBox()->getUpperRightCorner().getCoordinates());
+	Vec centerPoint = *(part->getBoundingBox()->getCenterPoint().getCoordinates());
 
 	std::cout << "bounding box: " << std::endl;
 	DebugUtilities::printVector(boundingBoxLower);

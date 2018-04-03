@@ -16,34 +16,34 @@ DisplayableObject::~DisplayableObject()
 			delete it;
 	}
 
-	for (Vec *v : vertices) {
+	for (Point3D *v : vertices) {
 		if (v)
 			delete v;
 	}
 }
 
-void DisplayableObject::updateBoundingBox(Vec& newPoint)
+void DisplayableObject::updateBoundingBox(Point3D& newPoint)
 {
-	float vx = newPoint.getElementAt(1);
-	float vy = newPoint.getElementAt(2);
-	float vz = newPoint.getElementAt(3);
+	float vx = newPoint.getCoordinates()->getElementAt(1);
+	float vy = newPoint.getCoordinates()->getElementAt(2);
+	float vz = newPoint.getCoordinates()->getElementAt(3);
 
 	if (!box->isInitialized()) {
-		Vec firstPoint = Vec(3);
-		firstPoint.addElement(1, vx).addElement(2, vy).addElement(3, vz);
+		Point3D firstPoint;
+		firstPoint.setCoordinates(vx, vy, vz);
 		box->setLowerLeftCorner(firstPoint);
 		box->setUpperRightCorner(firstPoint);
 		box->setInitialized(true);
 		return;
 	}
 
-	float minX = box->getLowerLeftCorner().getElementAt(1);
-	float minY = box->getLowerLeftCorner().getElementAt(2);
-	float minZ = box->getLowerLeftCorner().getElementAt(3);
+	float minX = box->getLowerLeftCorner().getCoordinates()->getElementAt(1);
+	float minY = box->getLowerLeftCorner().getCoordinates()->getElementAt(2);
+	float minZ = box->getLowerLeftCorner().getCoordinates()->getElementAt(3);
 
-	float maxX = box->getUpperRightCorner().getElementAt(1);
-	float maxY = box->getUpperRightCorner().getElementAt(2);
-	float maxZ = box->getUpperRightCorner().getElementAt(3);
+	float maxX = box->getUpperRightCorner().getCoordinates()->getElementAt(1);
+	float maxY = box->getUpperRightCorner().getCoordinates()->getElementAt(2);
+	float maxZ = box->getUpperRightCorner().getCoordinates()->getElementAt(3);
 
 	bool minValuesUpdated = false;
 	bool maxValuesUpdated = false;
@@ -76,14 +76,14 @@ void DisplayableObject::updateBoundingBox(Vec& newPoint)
 	}
 
 	if (minValuesUpdated == true) {
-		Vec newLowerLeftCorner = Vec(3);
-		newLowerLeftCorner.addElement(1, minX).addElement(2, minY).addElement(3, minZ);
+		Point3D newLowerLeftCorner;
+		newLowerLeftCorner.setCoordinates(minX, minY, minZ);
 		box->setLowerLeftCorner(newLowerLeftCorner);
 	}
 
 	if (maxValuesUpdated == true) {
-		Vec newUpperRightCorner = Vec(3);
-		newUpperRightCorner.addElement(1, maxX).addElement(2, maxY).addElement(3, maxZ);
+		Point3D newUpperRightCorner;
+		newUpperRightCorner.setCoordinates(maxX, maxY, maxZ);
 		box->setUpperRightCorner(newUpperRightCorner);
 	}
 
@@ -91,11 +91,10 @@ void DisplayableObject::updateBoundingBox(Vec& newPoint)
 
 void DisplayableObject::addVertex(float c1, float c2, float c3)
 {
-	Vec *v = new Vec(3);
-	v->addElement(1, c1).addElement(2, c2).addElement(3, c3);
-	vertices.push_back(v);
+	Point3D *p = new Point3D(c1, c2, c3);
+	vertices.push_back(p);
 
-	updateBoundingBox(*v);
+	updateBoundingBox(*p);
 }
 
 void DisplayableObject::addIndexedElement(IndexedElement *element)

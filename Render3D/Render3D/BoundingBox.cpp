@@ -4,31 +4,44 @@
 
 BoundingBox::BoundingBox()
 {
+	lowestCorner = new Point3D();
+	highestCorner = new Point3D();
+	centerPoint = new Point3D();
 }
 
 
 BoundingBox::~BoundingBox()
 {
+	if (lowestCorner)
+		delete lowestCorner;
+	
+	if (highestCorner)
+		delete highestCorner;
+
+	if (centerPoint)
+		delete centerPoint;
 }
 
-void BoundingBox::setLowerLeftCorner(const Vec & v)
+void BoundingBox::setLowerLeftCorner(const Point3D & v)
 {
-	lowestCorner = v;
+	const Vec* coords = v.getCoordinates();
+	lowestCorner->setCoordinates(coords->getElementAt(1), coords->getElementAt(2), coords->getElementAt(3));
 	updateCenterPoint();
 }
 
-void BoundingBox::setUpperRightCorner(const Vec & v)
+void BoundingBox::setUpperRightCorner(const Point3D & v)
 {
-	highestCorner = v;
+	const Vec* coords = v.getCoordinates();
+	highestCorner->setCoordinates(coords->getElementAt(1), coords->getElementAt(2), coords->getElementAt(3));
 	updateCenterPoint();
 }
 
 void BoundingBox::updateCenterPoint()
 {
 	//update center point
-	float centerX = (lowestCorner.getElementAt(1) + highestCorner.getElementAt(1)) / 2.0f;
-	float centerY = (lowestCorner.getElementAt(2) + highestCorner.getElementAt(2)) / 2.0f;
-	float centerZ = (lowestCorner.getElementAt(3) + highestCorner.getElementAt(3)) / 2.0f;
+	float centerX = (lowestCorner->getCoordinates()->getElementAt(1) + highestCorner->getCoordinates()->getElementAt(1)) / 2.0f;
+	float centerY = (lowestCorner->getCoordinates()->getElementAt(2) + highestCorner->getCoordinates()->getElementAt(2)) / 2.0f;
+	float centerZ = (lowestCorner->getCoordinates()->getElementAt(3) + highestCorner->getCoordinates()->getElementAt(3)) / 2.0f;
 
-	centerPoint.addElement(1, centerX).addElement(2, centerY).addElement(3, centerZ);
+	centerPoint->setCoordinates(centerX, centerY, centerZ);
 }

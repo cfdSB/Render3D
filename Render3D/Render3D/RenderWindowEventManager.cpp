@@ -104,7 +104,7 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 			float zoomOffScale = findZoomOffDistance(box);
 			std::cout << "camera zoomOff distance: " << zoomOffScale << std::endl;
 			Vec direction = Vec(window->getView().getCameraDirection());
-			Vec targetPoint = box->getCenterPoint();
+			Vec targetPoint = *(box->getCenterPoint().getCoordinates());
 			Vec zoomOffCameraPosition = direction.scale(zoomOffScale) + targetPoint;
 			window->setViewParameters(zoomOffCameraPosition, targetPoint);
 		}
@@ -124,11 +124,11 @@ float findZoomOffDistance(const BoundingBox *box)
 	return positionScale;
 }
 
-float findDistance(const Vec& point1, const Vec& point2) {
+float findDistance(const Point3D& point1, const Point3D& point2) {
 
-	float xDiff = point1.getElementAt(1) - point2.getElementAt(1);
-	float yDiff = point1.getElementAt(2) - point2.getElementAt(2);
-	float zDiff = point1.getElementAt(3) - point2.getElementAt(3);
+	float xDiff = point1.getCoordinates()->getElementAt(1) - point2.getCoordinates()->getElementAt(1);
+	float yDiff = point1.getCoordinates()->getElementAt(2) - point2.getCoordinates()->getElementAt(2);
+	float zDiff = point1.getCoordinates()->getElementAt(3) - point2.getCoordinates()->getElementAt(3);
 	float dist = sqrt(pow(xDiff, 2) + pow(yDiff, 2) + pow(zDiff, 2));
 	
 	return dist;

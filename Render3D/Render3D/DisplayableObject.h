@@ -1,14 +1,14 @@
 #ifndef DISPLAYABLEOBJECT_H
 #define DISPLAYABLEOBJECT_H
 
-#include "Vec.h"
+#include "Point3D.h"
 #include "vector"
 #include "IndexedElement.h"
 #include "BoundingBox.h"
 class DisplayableObject
 {
 private:
-	std::vector<Vec*> vertices;
+	std::vector<Point3D*> vertices;
 	std::vector<Vec*> vertexNormals;
 	std::vector<IndexedElement*> indexedElements;
 	BoundingBox *box;
@@ -16,7 +16,7 @@ public:
 	DisplayableObject();
 	virtual ~DisplayableObject();
 
-	const std::vector<Vec*>& getVertices() const { return vertices; };
+	const std::vector<Point3D*>& getVertices() const { return vertices; };
 	const std::vector<IndexedElement*>& getIndexedElements() const { return indexedElements; };
 	const std::vector<Vec*>& getVertexNormals() const { return vertexNormals; };
 	const BoundingBox* getBoundingBox() const { return box; };
@@ -27,7 +27,7 @@ public:
 	void addNormal(float c1, float c2, float c3);
 	void addIndexedElement(IndexedElement* element);
 private:
-	void updateBoundingBox(Vec& newPoint);
+	void updateBoundingBox(Point3D& newPoint);
 protected:
 	
 };

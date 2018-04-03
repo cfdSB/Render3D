@@ -28,7 +28,7 @@ public:
 	const Vec& getOrigin() const { return origin; };
 	void setNormal(const Vec& n) { normal = n; };
 	void setOrigin(const Vec& orig) { origin = orig; };
-	Vec* computePlaneIntersectionPoint(const Vec& p1, const Vec& p2);
+	Point3D* computePlaneIntersectionPoint(const Point3D& p1, const Point3D& p2);
 	void computePlaneSection();
 private:
 	//void computePlaneSection();
