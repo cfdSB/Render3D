@@ -16,11 +16,32 @@
 #include "ShaderProgram.h"
 #include "PlaneSectionPart.h"
 
+//---------
+//method declarations
+//----------
+void readInputFile(std::string fileName);
+
+//-------------------
+//variables to hold input values read from an input file
+//--------------------
+std::string partFileName;
+std::string createSectionCut;
+std::string sectionNormal;
+std::string sectionOrigin;
+
 int main() {
 
+	//--------------
+	//read input file (no GUI for this project yet)
+	//--------------
+	readInputFile("input.txt");
+
+	//-------------
+	//read STL file specified in input.txt
+	//-------------
 	CadImporter importer;
 	//std::string fileName = "classic_tea_pot.stl";
-	std::string fileName = "fuel_tank.stl";
+	std::string fileName = partFileName;
 	GeometryPart *part = importer.importSTL(fileName);
 
 	//-----
@@ -38,28 +59,18 @@ int main() {
 	//--------
 	//compute plane section
 	//---------
-	PlaneSectionPart pPart(part);
-	Vec normalV(3);
-	normalV.addElement(1, 0.0).addElement(2, 1.0).addElement(3, 0.0);
-	Vec origin(3);
-	origin.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
-	pPart.setNormal(normalV);
-	pPart.setOrigin(origin);
-	pPart.computePlaneSection();
+	PlaneSectionPart *pPart = nullptr;
 
-	/*Vec p1(3);
-	p1.addElement(1, -1.0).addElement(2, 2.5).addElement(3, 2.8);
-	Vec p2(3);
-	p2.addElement(1, 1.0).addElement(2, 5.0).addElement(3, 5.6);
-	Vec* intersect = pPart.computePlaneIntersectionPoint(p1, p2);
-	if (intersect != nullptr) {
-		std::cout << " intersection point: " << intersect->getElementAt(1) << ","
-			<< intersect->getElementAt(2) << "," << intersect->getElementAt(3) << std::endl;
+	if (createSectionCut == "true") {
+		pPart = new PlaneSectionPart(part);
+		Vec normalV(3);
+		normalV.addElement(1, 0.0).addElement(2, 1.0).addElement(3, 0.0);
+		Vec origin(3);
+		origin.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+		pPart->setNormal(normalV);
+		pPart->setOrigin(origin);
+		pPart->computePlaneSection();
 	}
-	else {
-		std::cout << "No intersection Point" << std::endl;
-	}
-*/
 
 	//-----------
 	//initialize render window
@@ -99,14 +110,19 @@ int main() {
 	//----------
 	//prepare data to render
 	//----------
-	//RenderObject *ro = new RenderObject(part);
-	//ro->setShaderProgram(shaderProg.getProgramID());
-	//ro->setDrawType(1); //1 for triangular element data
-
-	RenderObject *ro = new RenderObject(&pPart);
-	ro->setShaderProgram(shaderProg.getProgramID());
-	ro->setDrawType(2);	//2 for lines
-
+	RenderObject *ro = nullptr;
+	
+	if (createSectionCut == "true") {
+		ro = new RenderObject(pPart);
+		ro->setShaderProgram(shaderProg.getProgramID());
+		ro->setDrawType(2);	//2 for line data
+	}
+	else {
+		ro = new RenderObject(part);
+		ro->setShaderProgram(shaderProg.getProgramID());
+		ro->setDrawType(1); //1 for triangular element data
+	}
+	
 	//--------
 	//add data to Render window
 	//--------
@@ -117,9 +133,36 @@ int main() {
 	//---------
 	window.startRenderLoop();
 
-	delete ro;
-
 
 	return 0;
+}
+
+void readInputFile(std::string fileName) {
+
+	std::ifstream inputFile(fileName);
+	if (inputFile.is_open()) {
+		std::string str;
+		int lineNumber = 0;
+		std::string commentMark = "#";
+		while (std::getline(inputFile, str)) {
+
+			if(str.compare(0, commentMark.length(), commentMark) == 0){
+				continue; //since the line is a comment
+			}
+
+			if (str.empty() == true) {
+				continue;  //empty string
+			}
+
+			if (lineNumber == 0) {
+				partFileName = str;
+			}else if (lineNumber == 1) {
+				createSectionCut = str;
+			}
+			lineNumber++;
+		}
+	}
+	inputFile.close();
+
 }
 
