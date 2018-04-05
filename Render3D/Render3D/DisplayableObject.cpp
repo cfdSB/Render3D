@@ -1,6 +1,6 @@
 #include "DisplayableObject.h"
 
-DisplayableObject::DisplayableObject()
+DisplayableObject::DisplayableObject(int verticesPerElement): verticesPerElement(verticesPerElement)
 {
 	box = new BoundingBox();
 }
@@ -107,4 +107,55 @@ void DisplayableObject::addNormal(float c1, float c2, float c3)
 	Vec *normal = new Vec(3);
 	normal->addElement(1, c1).addElement(2, c2).addElement(3, c3);
 	vertexNormals.push_back(normal);
+}
+
+std::unique_ptr<float[]> DisplayableObject::getVertexData() const
+{
+	unsigned int totalVertexCoordinates = getVertexCount() * coordinatesPerVertex;
+	std::unique_ptr<float[]> vertexData(new float[totalVertexCoordinates]);
+
+	unsigned int count = 0;
+	for (const Point3D* p : getVertices()) {
+		for (int i = 1; i <= p->getCoordinates()->getSize(); i++) {
+			vertexData[count] = p->getCoordinates()->getElementAt(i);
+			count++;
+		}
+	}
+
+	return vertexData;
+}
+
+std::unique_ptr<unsigned int[]> DisplayableObject::getVertexIndexData() const
+{
+	unsigned int indicesPerElement = getElementIndexCount();
+	unsigned int totalIndices = getIndexedElements().size() * indicesPerElement;
+	std::cout << "Total indices DispObject:" << totalIndices << std::endl;
+	std::unique_ptr<unsigned int[]> vertexIndexData(new unsigned int[totalIndices]);
+
+	unsigned int indexCount = 0;
+	for (const IndexedElement* p : getIndexedElements()) {
+		//std::cout << "element index count: " << p->getIndexCount() << std::endl;
+		for (int i = 0; i < indicesPerElement; i++) {
+			vertexIndexData[indexCount] = p->getIndices()[i];
+			indexCount++;
+		}
+	}
+
+	return vertexIndexData;
+}
+
+std::unique_ptr<float[]> DisplayableObject::getNormalsData() const
+{
+	unsigned int totalNormalCoordinates = getVertexNormals().size()*coordinatesPerNormal;
+	std::unique_ptr<float[]> normalsData(new float[totalNormalCoordinates]);
+
+	unsigned int count = 0;
+	for (const Vec* n : getVertexNormals()) {
+		for (int i = 1; i <= n->getSize(); i++) {
+			normalsData[count] = n->getElementAt(i);
+			count++;
+		}
+	}
+
+	return normalsData;
 }

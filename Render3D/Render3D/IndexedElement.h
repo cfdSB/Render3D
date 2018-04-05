@@ -3,14 +3,14 @@
 class IndexedElement
 {
 private:
-	unsigned int indexCount;
+	int indexCount;
 	unsigned int* indices;
 public:
 	virtual ~IndexedElement();
-	unsigned int getIndexCount() const;
+	int getIndexCount() const;
 	virtual const unsigned int* getIndices() const;
 protected:
-	IndexedElement(unsigned int indexCount);
+	IndexedElement(int indexCount);
 	unsigned int* getIndicesEditable();
 };
 #endif

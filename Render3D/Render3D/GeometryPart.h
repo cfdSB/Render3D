@@ -3,6 +3,8 @@
 
 #include "IndexedTriangle.h"
 #include "DisplayableObject.h"
+#include "GeometryEntity.h"
+#include "Renderable.h"
 
 class GeometryPart:public DisplayableObject
 {
@@ -11,9 +13,13 @@ private:
 public:
 	GeometryPart();
 	~GeometryPart();
-	void addTriangle(unsigned int i1, unsigned int i2, unsigned int i3);
-	const std::vector<IndexedElement*> getTriangles() { return getIndexedElements(); };
-	int getElementIndexCount() override;
+	void addTriangleFace(float p1x, float p1y, float p1z,
+		float p2x, float p2y, float p2z,
+		float p3x, float p3y, float p3z,
+		float normalx, float normaly, float normalz);
+
+	const std::vector<GeometryEntity::TriangleFace*> getTriangleFaces() const;
+
 };
 
 #endif

@@ -42,17 +42,8 @@ GeometryPart* CadImporter::importSTL(std::string & fileName)
 			/*std::cout << "(" << v1[0] << ", " << v1[1] << ", " << v1[2] << ")" << std::endl;
 			std::cout << "(" << v2[0] << ", " << v2[1] << ", " << v2[2] << ")" << std::endl;
 			std::cout << "(" << v3[0] << ", " << v3[1] << ", " << v3[2] << ")" << std::endl;*/
-			part->addVertex(v1[0], v1[1], v1[2]);
-			part->addVertex(v2[0], v2[1], v2[2]);
-			part->addVertex(v3[0], v3[1], v3[2]);
-
-			unsigned int totalPnts = part->getVertexCount();
-			part->addTriangle(totalPnts - 3, totalPnts - 2, totalPnts - 1);
-
-			//added three times; one for each vertex
-			part->addNormal(normal[0], normal[1], normal[2]);
-			part->addNormal(normal[0], normal[1], normal[2]);
-			part->addNormal(normal[0], normal[1], normal[2]);
+			part->addTriangleFace(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], v3[0], v3[1], v3[2],
+				                  normal[0], normal[1], normal[2]);
 
 		}
 		delete[] name;

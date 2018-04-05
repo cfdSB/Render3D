@@ -7,6 +7,7 @@
 #include "Vec.h"
 #include <iostream>
 #include "IndexedEdge.h"
+#include "GeometryEntity.h"
 
 class PlaneSectionPart : public DisplayableObject
 {
@@ -19,10 +20,6 @@ private:
 public:
 	PlaneSectionPart(GeometryPart *part);
 	virtual ~PlaneSectionPart();
-
-	int getElementIndexCount() override {
-		return PLANE_SECTION_PART_ELEMENT_INDEX_COUNT;
-	};
 
 	const Vec& getNormal() const { return normal; };
 	const Vec& getOrigin() const { return origin; };

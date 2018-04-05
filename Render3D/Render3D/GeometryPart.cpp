@@ -1,6 +1,6 @@
 #include "GeometryPart.h"
 
-GeometryPart::GeometryPart()
+GeometryPart::GeometryPart() : DisplayableObject(3) // 3 vertices per element
 {
 }
 
@@ -8,15 +8,58 @@ GeometryPart::~GeometryPart()
 {
 }
 
-
-void GeometryPart::addTriangle(unsigned int i1, unsigned int i2, unsigned int i3)
+void GeometryPart::addTriangleFace(float p1x, float p1y, float p1z, 
+	                               float p2x, float p2y, float p2z, 
+	                               float p3x, float p3y, float p3z, 
+	                               float normalx, float normaly, float normalz)
 {
-	IndexedTriangle *it = new IndexedTriangle(i1, i2, i3);
+	addVertex(p1x, p1y, p1z);
+	addNormal(normalx, normaly, normalz);
+
+	addVertex(p2x, p2y, p2z);
+	addNormal(normalx, normaly, normalz);
+
+	addVertex(p3x, p3y, p3z);
+	addNormal(normalx, normaly, normalz);
+
+	unsigned int totalPnts = getVertexCount();
+	IndexedTriangle *it = new IndexedTriangle(totalPnts - 3, totalPnts - 2, totalPnts - 1);
 	addIndexedElement(it);
 }
 
-int GeometryPart::getElementIndexCount()
+
+const std::vector<GeometryEntity::TriangleFace*> GeometryPart::getTriangleFaces() const
 {
-	return GEOM_PART_ELEMENT_INDEX_COUNT;
+	std::vector<GeometryEntity::TriangleFace*> triangleFaces;
+
+	const std::vector<IndexedElement*> elements = getIndexedElements();
+
+	for (IndexedElement* triangle : elements) {
+		unsigned int p1Index = triangle->getIndices()[0];
+		unsigned int p2Index = triangle->getIndices()[1];
+		unsigned int p3Index = triangle->getIndices()[2];
+
+		Point3D *pnt1 = getVertices().at(p1Index); 
+		Point3D *pnt2 = getVertices().at(p2Index);
+		Point3D *pnt3 = getVertices().at(p3Index);
+
+		GeometryEntity::Edge *e1 = new GeometryEntity::Edge();
+		e1->setPoints(pnt1, pnt2);
+		GeometryEntity::Edge *e2 = new GeometryEntity::Edge();
+		e2->setPoints(pnt2, pnt3);
+		GeometryEntity::Edge *e3 = new GeometryEntity::Edge();
+		e3->setPoints(pnt3, pnt1);
+
+		GeometryEntity::TriangleFace* face = new GeometryEntity::TriangleFace();
+		face->setEdges(e1, e2, e3);
+
+		triangleFaces.push_back(face);	
+	}
+
+	return triangleFaces;
 }
+
+
+
+
 

@@ -3,7 +3,7 @@
 
 
 
-PlaneSectionPart::PlaneSectionPart(GeometryPart *part): part(part)
+PlaneSectionPart::PlaneSectionPart(GeometryPart *part): DisplayableObject(2), part(part)
 {
 }
 
@@ -14,29 +14,19 @@ PlaneSectionPart::~PlaneSectionPart()
 
 void PlaneSectionPart::computePlaneSection()
 {
-	const std::vector<Point3D*> vertices = part->getVertices();
-	const std::vector<IndexedElement*> elements = part->getTriangles();
+	const std::vector<GeometryEntity::TriangleFace*> triangleFaces = part->getTriangleFaces();
 
 	std::vector<Point3D*> intersectPoints;
 
-	for (IndexedElement *elm : elements) {
+	for (GeometryEntity::TriangleFace* face : triangleFaces) {
 
 		intersectPoints.clear();
 
-		for (int i = 0; i < elm->getIndexCount(); i++) {
-			unsigned int p1IndexIndex, p2IndexIndex;
-			unsigned int p1Index, p2Index;
-			p1IndexIndex = i;
-			p2IndexIndex = i + 1;
-			if (p2IndexIndex >= elm->getIndexCount()) {
-				p2IndexIndex = 0;
-			}
-			p1Index = elm->getIndices()[p1IndexIndex];
-			p2Index = elm->getIndices()[p2IndexIndex];
-			Point3D *pointP1 = vertices.at(p1Index);
-			Point3D *pointP2 = vertices.at(p2Index);
-			
+		for(GeometryEntity::Edge * edge : face->getEdges()){
+			Point3D* pointP1 = edge->getPoint1();
+			Point3D* pointP2 = edge->getPoint2();
 			Point3D* intersect = computePlaneIntersectionPoint(*pointP1, *pointP2);
+
 			if (intersect != nullptr) {
 				intersectPoints.push_back(intersect);
 				std::cout << " intersection point: " << intersect->getCoordinates()->getElementAt(1) << ","

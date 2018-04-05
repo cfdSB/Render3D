@@ -19,9 +19,9 @@ private:
 	unsigned int vertexCount; //not used, remove later
 	
 
-	float* vertexData;
-	unsigned int* elementIndexData;
-	float* normalsData;
+	float* vertexData = nullptr;
+	unsigned int* elementIndexData = nullptr;
+	float* normalsData = nullptr;
 	unsigned int totalVertexCoordinates, totalNormalCoordinates, totalIndices;
 
 	const int coordinatesPerVertex = 3;
@@ -34,7 +34,7 @@ public:
 	unsigned int getVAO() const { return VAO; };
 	unsigned int getShaderProgram() const { return shaderProgram; };
 	unsigned int getDrawType() const { return drawType; };
-	unsigned int getVertexCount() const { return part->getVertices().size(); };
+	unsigned int getVertexCount() const { return part->getVertexCount(); };
 	void setShaderProgram(unsigned int shaderProg);
 	void setDrawType(int drawType);
 	const DisplayableObject* getDisplayableObject() { return part; };

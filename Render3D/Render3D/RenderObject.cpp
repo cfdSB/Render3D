@@ -39,55 +39,34 @@ void RenderObject::setDrawType(int drawType)
 
 void RenderObject::initializeData()
 {
-	buildDataArrays();
+	//buildDataArrays();
 	createVAO();
 }
 
 void RenderObject::buildDataArrays()
 {
 	
-	totalVertexCoordinates = part->getVertices().size() * coordinatesPerVertex;
-	vertexData = new float[totalVertexCoordinates];
-	std::cout << "Total point coordinates: " << totalVertexCoordinates << std::endl;
 
-	totalNormalCoordinates = part->getVertexNormals().size()*coordinatesPerNormal;
-	normalsData = new float[totalNormalCoordinates];
-	std::cout << "Total normal coordinates: " << totalNormalCoordinates << std::endl;
-
-	unsigned int indicesPerElement = part->getElementIndexCount();
-	const std::vector<IndexedElement*> indexedElements = part->getIndexedElements();
-	totalIndices = part->getIndexedElements().size() * indicesPerElement;
-	elementIndexData = new unsigned int[totalIndices];
-
-
-	int count = 0;
-	for (const Point3D* p : part->getVertices()) {
-		for (int i = 1; i <= p->getCoordinates()->getSize(); i++) {
-			vertexData[count] = p->getCoordinates()->getElementAt(i);
-			count++;
-		}
-	}
-
-	count = 0;
-	for (const Vec* n : part->getVertexNormals()) {
-		for (int i = 1; i <= n->getSize(); i++) {
-			normalsData[count] = n->getElementAt(i);
-			count++;
-		}
-	}
-
-	
-	int indexCount = 0;
-	for (const IndexedElement* p : part->getIndexedElements()) {
-		for (int i = 0; i < p->getIndexCount(); i++) {
-			elementIndexData[indexCount] = p->getIndices()[i];
-			indexCount++;
-		}
-	}
 }
 
 void RenderObject::createVAO()
 {
+	std::unique_ptr<float[]> vertexData = part->getVertexData();
+	std::unique_ptr<unsigned int[]> indicesData = part->getVertexIndexData();
+	std::unique_ptr<float[]> normalsData = part->getNormalsData();
+
+	totalVertexCoordinates = part->getVertexCount()*coordinatesPerVertex;
+	totalIndices = part->getElementCount()*part->getElementIndexCount();
+	totalNormalCoordinates = part->getVertexCount()*coordinatesPerNormal;
+
+	std::cout << "Total vertex corrd: " << totalVertexCoordinates << std::endl;
+	std::cout << "Total indices:" << totalIndices << std::endl;
+	std::cout << "Total normalCorrd:" << totalNormalCoordinates << std::endl;
+
+	/*for (unsigned int i = 0; i < totalVertexCoordinates; i++) {
+		std::cout << "coord: " << vertexData.get()[i] << std::endl;
+	}*/
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &vertexVBO);
 	glGenBuffers(1, &indicesEBO);
@@ -96,16 +75,16 @@ void RenderObject::createVAO()
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
-	glBufferData(GL_ARRAY_BUFFER, totalVertexCoordinates * sizeof(float), vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, totalVertexCoordinates * sizeof(float), vertexData.get(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalIndices * sizeof(unsigned int), elementIndexData, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalIndices * sizeof(unsigned int), indicesData.get(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, coordinatesPerVertex, GL_FLOAT, GL_FALSE, coordinatesPerVertex * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, normalsVBO);
-	glBufferData(GL_ARRAY_BUFFER, totalNormalCoordinates * sizeof(float), normalsData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, totalNormalCoordinates * sizeof(float), normalsData.get(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(1, coordinatesPerNormal, GL_FLOAT, GL_FALSE, coordinatesPerNormal * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);

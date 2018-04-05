@@ -2,7 +2,7 @@
 
 
 
-IndexedElement::IndexedElement(unsigned int indexCount): indexCount(indexCount)
+IndexedElement::IndexedElement(int indexCount): indexCount(indexCount)
 {
 	indices = new unsigned int[indexCount];
 }
@@ -20,7 +20,7 @@ IndexedElement::~IndexedElement()
 	}
 }
 
-unsigned int IndexedElement::getIndexCount() const
+int IndexedElement::getIndexCount() const
 {
 	return indexCount;
 }
