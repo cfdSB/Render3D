@@ -3,6 +3,7 @@
 
 
 
+
 PlaneSectionPart::PlaneSectionPart(GeometryPart *part): DisplayableObject(2), part(part)
 {
 }
@@ -31,6 +32,7 @@ void PlaneSectionPart::computePlaneSection()
 				intersectPoints.push_back(intersect);
 				//std::cout << " intersection point: " << intersect->getCoordinates()->getElementAt(1) << ","
 				//	<< intersect->getCoordinates()->getElementAt(2) << "," << intersect->getCoordinates()->getElementAt(3) << std::endl;
+
 			}
 			/*else {
 				std::cout << "No intersection Point" << std::endl;
@@ -59,6 +61,7 @@ Point3D * PlaneSectionPart::computePlaneIntersectionPoint(const Point3D& p1, con
 	
 	Vec u = *(p2.getCoordinates()) - *(p1.getCoordinates());
 	Vec w = origin - *(p1.getCoordinates());
+
 
 	float norm1 = normal * w;
 	float norm2 = normal * u;

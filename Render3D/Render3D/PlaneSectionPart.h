@@ -9,6 +9,7 @@
 #include "IndexedEdge.h"
 #include "GeometryEntity.h"
 
+
 class PlaneSectionPart : public DisplayableObject
 {
 private:

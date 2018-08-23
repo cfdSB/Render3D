@@ -10,7 +10,9 @@ public:
 	int getIndexCount() const;
 	virtual const unsigned int* getIndices() const;
 protected:
+
 	IndexedElement(int indexCount);
+
 	unsigned int* getIndicesEditable();
 };
 #endif

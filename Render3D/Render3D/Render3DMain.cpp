@@ -29,6 +29,7 @@ std::string createSectionCut;
 std::string sectionNormal;
 std::string sectionOrigin;
 
+
 int main() {
 
 	//--------------
@@ -42,6 +43,7 @@ int main() {
 	CadImporter importer;
 	//std::string fileName = "classic_tea_pot.stl";
 	std::string fileName = partFileName;
+
 	GeometryPart *part = importer.importSTL(fileName);
 
 	//-----
@@ -71,7 +73,6 @@ int main() {
 		pPart->setOrigin(origin);
 		pPart->computePlaneSection();
 	}
-
 	//-----------
 	//initialize render window
 	//-----------
@@ -132,6 +133,7 @@ int main() {
 	//start render loop
 	//---------
 	window.startRenderLoop();
+
 
 
 	return 0;
