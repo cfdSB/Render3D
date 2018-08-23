@@ -4,7 +4,6 @@
 #include "IndexedTriangle.h"
 #include "DisplayableObject.h"
 #include "GeometryEntity.h"
-#include "Renderable.h"
 
 class GeometryPart:public DisplayableObject
 {

@@ -29,8 +29,8 @@ void PlaneSectionPart::computePlaneSection()
 
 			if (intersect != nullptr) {
 				intersectPoints.push_back(intersect);
-				std::cout << " intersection point: " << intersect->getCoordinates()->getElementAt(1) << ","
-					<< intersect->getCoordinates()->getElementAt(2) << "," << intersect->getCoordinates()->getElementAt(3) << std::endl;
+				//std::cout << " intersection point: " << intersect->getCoordinates()->getElementAt(1) << ","
+				//	<< intersect->getCoordinates()->getElementAt(2) << "," << intersect->getCoordinates()->getElementAt(3) << std::endl;
 			}
 			/*else {
 				std::cout << "No intersection Point" << std::endl;
