@@ -114,7 +114,29 @@ void RenderWindow::render() {
 	//loop through VAOs and draw 
 	//----------
 	for (RenderObject* rb : renderObjects) {
-		glBindVertexArray(rb->getVAO()); 
+
+		glUseProgram(rb->getShaderProgram());
+		unsigned int uniformLocationView = glGetUniformLocation(rb->getShaderProgram(), "viewMat");
+		unsigned int uniformLightLocation = glGetUniformLocation(rb->getShaderProgram(), "lightPos");
+		unsigned int uniformLocationProj = glGetUniformLocation(rb->getShaderProgram(), "projectionMat");
+		unsigned int uniformObjectColor = glGetUniformLocation(rb->getShaderProgram(), "objectColor");
+		unsigned int isMeshDisplay = glGetUniformLocation(rb->getShaderProgram(), "isMeshDisplay");
+
+		//display mesh 
+		if (isMeshDisplayed == true) {
+			glBindVertexArray(rb->getMeshVAO());
+			GLenum drawType = GL_LINES;
+			//glUseProgram(rb->getShaderMeshProgram());
+			//define object color - black for mesh lines
+			Vec meshColor(3);
+			meshColor.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+			//unsigned int uniformMeshColor = glGetUniformLocation(rb->getShaderMeshProgram(), "objectColor");
+			glUniform3fv(uniformObjectColor, 1, meshColor.getDataPtr());
+			glUniform1i(isMeshDisplay, 1);	//0 for false
+			glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
+		}
+
+		glBindVertexArray(rb->getVAO());
 		GLenum drawType;
 		if (rb->getDrawType() == 1) {
 			drawType = GL_TRIANGLES;
@@ -122,18 +144,22 @@ void RenderWindow::render() {
 		else if (rb->getDrawType() == 2) {
 			drawType = GL_LINES;
 		}
-		glUseProgram(rb->getShaderProgram());
-		unsigned int uniformLocationView = glGetUniformLocation(rb->getShaderProgram(), "viewMat");
-		unsigned int uniformLightLocation = glGetUniformLocation(rb->getShaderProgram(), "lightPos");
-		unsigned int uniformLocationProj = glGetUniformLocation(rb->getShaderProgram(), "projectionMat");
+		//define object color
+		Vec objectColor(3);
+		objectColor.addElement(1, 0.0).addElement(2, 1.0).addElement(3, 0.0);
 		
 		glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getLookAtMatrix().getDataPtr());
 		glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, view.getProjectionMatrix().getDataPtr());
 		glUniform3fv(uniformLightLocation, 1, view.getCameraPosition().getDataPtr());
+		glUniform3fv(uniformObjectColor, 1, objectColor.getDataPtr());
+		glUniform1i(isMeshDisplay, 0);	//0 for false
 
 		glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
+
+		
 	}
 
+	
 }
 
 void RenderWindow::configureGlobalOpenglState()

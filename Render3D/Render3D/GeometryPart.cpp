@@ -25,6 +25,14 @@ void GeometryPart::addTriangleFace(float p1x, float p1y, float p1z,
 	unsigned int totalPnts = getVertexCount();
 	IndexedTriangle *it = new IndexedTriangle(totalPnts - 3, totalPnts - 2, totalPnts - 1);
 	addIndexedElement(it);
+
+	IndexedEdge *ie1 = new IndexedEdge(totalPnts - 3, totalPnts - 2);
+	IndexedEdge *ie2 = new IndexedEdge(totalPnts - 2, totalPnts - 1);
+	IndexedEdge *ie3 = new IndexedEdge(totalPnts - 1, totalPnts - 3);
+
+	addIndexedEdge(ie1);
+	addIndexedEdge(ie2);
+	addIndexedEdge(ie3);
 }
 
 

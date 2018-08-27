@@ -109,6 +109,12 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 			window->setViewParameters(zoomOffCameraPosition, targetPoint);
 		}
 	}
+	else if (key == GLFW_KEY_M && action == GLFW_PRESS) {
+		if (glfwGetKey(wnd, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+			RenderWindow *window = static_cast<RenderWindow*> (glfwGetWindowUserPointer(wnd));
+			window->setMeshDisplayed(!window->getMeshDisplayed());
+		}
+	}
 	
 }
 

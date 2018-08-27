@@ -82,6 +82,8 @@ int main() {
 	//compile and link shader programs
 	//-------
 	ShaderProgram shaderProg("vShader_transformations_color.vs", "fShader_transformations_color.fs");
+	//ShaderProgram shaderProgMeshColor("vShader_transformations_color.vs", "fShader_transformations_meshcolor.fs");
+
 
 	//-----
 	//camera position and direction of looking to begin with
@@ -116,11 +118,13 @@ int main() {
 	if (createSectionCut == "true") {
 		ro = new RenderObject(pPart);
 		ro->setShaderProgram(shaderProg.getProgramID());
+		//ro->setShaderMeshProgram(shaderProgMeshColor.getProgramID());
 		ro->setDrawType(2);	//2 for line data
 	}
 	else {
 		ro = new RenderObject(part);
 		ro->setShaderProgram(shaderProg.getProgramID());
+		//ro->setShaderMeshProgram(shaderProgMeshColor.getProgramID());
 		ro->setDrawType(1); //1 for triangular element data
 	}
 	

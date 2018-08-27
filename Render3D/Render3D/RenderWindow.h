@@ -24,6 +24,8 @@ private:
 
 	MousePositionData pos;
 
+	bool isMeshDisplayed = false;
+
 private:
 	void initGLFW();
 	void processInput(GLFWwindow *window);
@@ -46,6 +48,8 @@ public:
 	void setMouseXposition(double x) { pos.xPos = x; };
 	void setMouseYposition(double y) { pos.yPos = y; };
 	const BoundingBox* getWindowObjectsBoundingBox();
+	void setMeshDisplayed(bool status) { isMeshDisplayed = status; };
+	bool getMeshDisplayed() const { return isMeshDisplayed; };
 };
 
 

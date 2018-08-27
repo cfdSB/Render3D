@@ -14,15 +14,11 @@ private:
 
 	unsigned int VAO;
 	unsigned int vertexVBO, indicesEBO, normalsVBO;
-	unsigned int shaderProgram;
+	unsigned int meshVAO;
+	unsigned int meshVertexVBO, meshIndicesEBO, meshNormalsVBO;
+	unsigned int shaderProgram, shaderMeshProgram;
 	unsigned int drawType;	//currently int, change to enum or so later
-	unsigned int vertexCount; //not used, remove later
-	
 
-	float* vertexData = nullptr;
-	unsigned int* elementIndexData = nullptr;
-	float* normalsData = nullptr;
-	unsigned int totalVertexCoordinates, totalNormalCoordinates, totalIndices;
 
 	const int coordinatesPerVertex = 3;
 	const int coordinatesPerNormal = 3;
@@ -32,10 +28,13 @@ public:
 	//RenderObject(unsigned int VAO, unsigned int shaderProgram, unsigned int drawType, unsigned int vertexCount);
 	virtual ~RenderObject();
 	unsigned int getVAO() const { return VAO; };
+	unsigned int getMeshVAO() const { return meshVAO; };
 	unsigned int getShaderProgram() const { return shaderProgram; };
+	unsigned int getShaderMeshProgram() const { return shaderMeshProgram; };
 	unsigned int getDrawType() const { return drawType; };
 	unsigned int getVertexCount() const { return part->getVertexCount(); };
 	void setShaderProgram(unsigned int shaderProg);
+	void setShaderMeshProgram(unsigned int shaderMeshProg);
 	void setDrawType(int drawType);
 	const DisplayableObject* getDisplayableObject() { return part; };
 
@@ -43,6 +42,7 @@ private:
 	void initializeData();
 	void buildDataArrays();
 	void createVAO();
+	void createMeshVAO();
 };
 
 #endif

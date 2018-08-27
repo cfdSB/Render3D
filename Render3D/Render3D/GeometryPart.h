@@ -2,6 +2,7 @@
 #define GEOMETRYPART_H
 
 #include "IndexedTriangle.h"
+#include "IndexedEdge.h"
 #include "DisplayableObject.h"
 #include "GeometryEntity.h"
 

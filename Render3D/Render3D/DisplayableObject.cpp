@@ -16,6 +16,11 @@ DisplayableObject::~DisplayableObject()
 			delete it;
 	}
 
+	for (IndexedElement *it : indexedEdges) {
+		if (it)
+			delete it;
+	}
+
 	for (Point3D *v : vertices) {
 		if (v)
 			delete v;
@@ -102,6 +107,11 @@ void DisplayableObject::addIndexedElement(IndexedElement *element)
 	indexedElements.push_back(element);
 }
 
+void DisplayableObject::addIndexedEdge(IndexedElement * edge)
+{
+	indexedEdges.push_back(edge);
+}
+
 void DisplayableObject::addNormal(float c1, float c2, float c3)
 {
 	Vec *normal = new Vec(3);
@@ -158,4 +168,23 @@ std::unique_ptr<float[]> DisplayableObject::getNormalsData() const
 	}
 
 	return normalsData;
+}
+
+std::unique_ptr<unsigned int[]> DisplayableObject::getEdgeIndexData() const
+{
+	unsigned int indicesPerElement = getEdgeIndexCount();
+	unsigned int totalIndices = getIndexedEdges().size() * indicesPerElement;
+	std::cout << "Total Edge indices DispObject:" << totalIndices << std::endl;
+	std::unique_ptr<unsigned int[]> edgeIndexData(new unsigned int[totalIndices]);
+
+	unsigned int indexCount = 0;
+	for (const IndexedElement* p : getIndexedEdges()) {
+		//std::cout << "element index count: " << p->getIndexCount() << std::endl;
+		for (int i = 0; i < indicesPerElement; i++) {
+			edgeIndexData[indexCount] = p->getIndices()[i];
+			indexCount++;
+		}
+	}
+
+	return edgeIndexData;
 }
