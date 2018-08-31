@@ -122,20 +122,6 @@ void RenderWindow::render() {
 		unsigned int uniformObjectColor = glGetUniformLocation(rb->getShaderProgram(), "objectColor");
 		unsigned int isMeshDisplay = glGetUniformLocation(rb->getShaderProgram(), "isMeshDisplay");
 
-		//display mesh 
-		if (isMeshDisplayed == true) {
-			glBindVertexArray(rb->getMeshVAO());
-			GLenum drawType = GL_LINES;
-			//glUseProgram(rb->getShaderMeshProgram());
-			//define object color - black for mesh lines
-			Vec meshColor(3);
-			meshColor.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
-			//unsigned int uniformMeshColor = glGetUniformLocation(rb->getShaderMeshProgram(), "objectColor");
-			glUniform3fv(uniformObjectColor, 1, meshColor.getDataPtr());
-			glUniform1i(isMeshDisplay, 1);	//0 for false
-			glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
-		}
-
 		glBindVertexArray(rb->getVAO());
 		GLenum drawType;
 		if (rb->getDrawType() == 1) {
@@ -154,7 +140,25 @@ void RenderWindow::render() {
 		glUniform3fv(uniformObjectColor, 1, objectColor.getDataPtr());
 		glUniform1i(isMeshDisplay, 0);	//0 for false
 
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(1.0, 1.0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+
+		//display mesh 
+		if (isMeshDisplayed == true) {
+
+			GLenum drawType = GL_TRIANGLES;
+			Vec meshColor(3);
+			meshColor.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+
+			glUniform3fv(uniformObjectColor, 1, meshColor.getDataPtr());
+			glUniform1i(isMeshDisplay, 1);	//0 for false
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
+		}
 
 		
 	}
