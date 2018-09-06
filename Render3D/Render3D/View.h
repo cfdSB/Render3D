@@ -13,6 +13,7 @@ class View
 private:
 	Vec position, target, tmpUp;
 	Vec cameraDirection, cameraRight, cameraUp;
+	glm::mat4 projectionGlm;
 	Matrix lookAt = Matrix(4, 4);
 	Matrix positionMat = Matrix(4, 4);
 	Matrix projection = Matrix(4, 4);
@@ -30,7 +31,10 @@ public:
 	const Matrix& getLookAtMatrix() const { return lookAt; };
 	const Matrix& getProjectionMatrix() const { return projection; };
 	void setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight);
-
+	unsigned int getScreenWidth() const { return scrWidth; };
+	unsigned int getScreenHeight() const { return scrHeight; };
+	glm::mat4 getProjectionMatrixGlm() const { return projectionGlm; };
+	glm::mat4 getViewMatrixGlm() const;
 private:
 	void computeLookAtMatrix();
 	void computeProjectionMatrix();

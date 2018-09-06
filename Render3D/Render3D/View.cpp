@@ -22,6 +22,20 @@ void View::setProjectionParameters(float projectionAngle, unsigned int scrWidth,
 	computeProjectionMatrix();
 }
 
+glm::mat4 View::getViewMatrixGlm() const
+{
+	glm::mat4 viewMatGlm;
+	for (int i = 1; i <= 4; i++) {
+		glm::vec4 row;
+		for (int j = 1; j <= 4; j++) {
+			row[j-1] = lookAt.getAt(j, i);
+		}
+		viewMatGlm[i - 1] = row;
+	}
+
+	return viewMatGlm;
+}
+
 void View::computeLookAtMatrix()
 {
 	Vec tmp = position - target;
@@ -57,8 +71,8 @@ void View::computeLookAtMatrix()
 
 void View::computeProjectionMatrix()
 {
-	glm::mat4 projectionMat = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 1.0e5f);
-	projection = convertGlmMatrix(projectionMat);
+	projectionGlm = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 1.0e5f);
+	projection = convertGlmMatrix(projectionGlm);
 }
 
 Matrix View::convertGlmMatrix(glm::mat4& m) {
