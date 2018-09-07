@@ -36,6 +36,12 @@ glm::mat4 View::getViewMatrixGlm() const
 	return viewMatGlm;
 }
 
+void View::setProjectionType(PROJECTION_TYPE type)
+{
+	this->projectionType = type;
+	computeProjectionMatrix();
+}
+
 void View::computeLookAtMatrix()
 {
 	Vec tmp = position - target;
@@ -71,8 +77,16 @@ void View::computeLookAtMatrix()
 
 void View::computeProjectionMatrix()
 {
-	projectionGlm = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 1.0e5f);
-	projection = convertGlmMatrix(projectionGlm);
+	if (projectionType == PROJECTION_TYPE::Perpective) {
+		std::cout << "Using perspective projection" << std::endl;
+		projectionGlm = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 1.0e5f);
+		projection = convertGlmMatrix(projectionGlm);
+	}
+	else {
+		std::cout << "Using parallel projection" << std::endl;
+		glm::mat4 projectionGlm = glm::ortho(0.0f, (float)scrWidth, (float)scrHeight, 0.0f, 0.1f, 1.0e5f);
+		projection = convertGlmMatrix(projectionGlm);
+	}
 }
 
 Matrix View::convertGlmMatrix(glm::mat4& m) {

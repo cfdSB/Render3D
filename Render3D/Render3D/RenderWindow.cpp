@@ -134,6 +134,12 @@ void RenderWindow::render() {
 		Vec objectColor(3);
 		objectColor.addElement(1, 0.0).addElement(2, 1.0).addElement(3, 0.0);
 		
+		// GL_TRUE is used below which makes transpose of a matrix before sending to shader.
+		//This is done because Render3D uses row-major way of storing the matrix numbers, but
+		//openGL is expecting column-major. So first row of Render3D matrix becomes 1st column
+		//of openGL matrix. Hence, we transpose the matrix to bring it to the correct form in
+		//openGL
+
 		glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getLookAtMatrix().getDataPtr());
 		glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, view.getProjectionMatrix().getDataPtr());
 		glUniform3fv(uniformLightLocation, 1, view.getCameraPosition().getDataPtr());

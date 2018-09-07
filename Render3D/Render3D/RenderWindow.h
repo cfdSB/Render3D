@@ -50,6 +50,7 @@ public:
 	const BoundingBox* getWindowObjectsBoundingBox();
 	void setMeshDisplayed(bool status) { isMeshDisplayed = status; };
 	bool getMeshDisplayed() const { return isMeshDisplayed; };
+	void setViewProjectionType(View::PROJECTION_TYPE type) { view.setProjectionType(type); };
 };
 
 

@@ -96,6 +96,7 @@ int main() {
 
 	window.setViewParameters(cameraPosition, targetPoint);
 	window.setProjectionParameters(45.0, 800, 600);
+	window.setViewProjectionType(View::PROJECTION_TYPE::Parallel);
 	
 	//--------debug output----------
 	View view;
