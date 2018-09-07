@@ -45,6 +45,7 @@ private:
 	void computeLookAtMatrix();
 	void computeProjectionMatrix();
 	Matrix convertGlmMatrix(glm::mat4& m);
+	void computeOrthoGraphicProjectionMatrix(float left, float right, float bottom, float top, float near, float far);
 };
 #endif
 
