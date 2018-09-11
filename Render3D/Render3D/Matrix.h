@@ -18,7 +18,7 @@
 		virtual ~Matrix();
 		float getAt(int row, int column) const;
 		void setAt(int row, int column, float value);
-		Matrix operator* (const Matrix& m);
+		Matrix operator* (const Matrix& m) const;
 		Matrix(const Matrix& m);
 		Matrix& operator=(const Matrix& m);
 		void copyRow(int rowNumber, const Vec& v);

@@ -21,6 +21,9 @@ private:
 	Matrix projection = Matrix(4, 4);
 	float projectionAngle = 45.0;
 	unsigned int scrWidth=800, scrHeight=600;
+	float projectionWindowLeftEnd = 0.0, projectionWindowRightEnd=800.0;
+	float projectionWindowBottomEnd=0.0, projectionWindowTopEnd=600.0;
+	float projectionWindowNearEnd=0.0, projectionWindowFarEnd=1.0e5;
 	PROJECTION_TYPE projectionType = PROJECTION_TYPE::Parallel;
 public:
 	View() { };
@@ -39,6 +42,7 @@ public:
 	glm::mat4 getProjectionMatrixGlm() const { return projectionGlm; };
 	glm::mat4 getViewMatrixGlm() const;
 	void setProjectionType(PROJECTION_TYPE type);
+	void setProjectionWindowSize(float left, float right, float bottom, float top, float nearby, float faraway);
 	PROJECTION_TYPE getProjectionType() const { return projectionType; };
 
 private:

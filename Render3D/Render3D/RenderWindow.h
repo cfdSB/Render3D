@@ -8,6 +8,7 @@
 #include "View.h"
 #include "Matrix.h"
 #include "RenderWindowEventManager.h"
+#include <algorithm>
 
 class RenderWindow
 {
@@ -41,7 +42,7 @@ public:
 	void addRenderObject(RenderObject* obj);
 	void setViewParameters(Vec position, Vec targetPoint);
 	void setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight);
-	void updateLookAtMatrix(Matrix lookAt);
+	void updateProjectionWindowSize();
 	const View& getView() { return view; };
 	double getMouseXposition() { return pos.xPos; };
 	double getMouseYposition() { return pos.yPos; };

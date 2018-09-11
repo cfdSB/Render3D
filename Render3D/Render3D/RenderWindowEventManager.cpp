@@ -107,6 +107,7 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 			Vec targetPoint = *(box->getCenterPoint().getCoordinates());
 			Vec zoomOffCameraPosition = direction.scale(zoomOffScale) + targetPoint;
 			window->setViewParameters(zoomOffCameraPosition, targetPoint);
+			window->updateProjectionWindowSize();
 		}
 	}
 	else if (key == GLFW_KEY_M && action == GLFW_PRESS) {

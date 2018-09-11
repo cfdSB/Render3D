@@ -42,6 +42,18 @@ void View::setProjectionType(PROJECTION_TYPE type)
 	computeProjectionMatrix();
 }
 
+void View::setProjectionWindowSize(float left, float right, float bottom, float top, float nearby, float faraway)
+{
+	projectionWindowLeftEnd = left;
+	projectionWindowRightEnd = right;
+	projectionWindowBottomEnd = bottom;
+	projectionWindowTopEnd = top;
+	projectionWindowNearEnd = nearby;
+	projectionWindowFarEnd = faraway;
+
+	computeProjectionMatrix();
+}
+
 void View::computeLookAtMatrix()
 {
 	Vec tmp = position - target;
@@ -86,7 +98,9 @@ void View::computeProjectionMatrix()
 		std::cout << "Using parallel projection" << std::endl;
 		//glm::mat4 projectionGlm = glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight, 0.1f, 1.0e5f);
 		//projection = convertGlmMatrix(projectionGlm);
-		computeOrthoGraphicProjectionMatrix(0.0f, (float)scrWidth, 0.0f, (float)scrHeight, 0.1f, 1.0e5f);
+		computeOrthoGraphicProjectionMatrix(projectionWindowLeftEnd, projectionWindowRightEnd, 
+			projectionWindowBottomEnd, projectionWindowTopEnd,
+			projectionWindowNearEnd, projectionWindowFarEnd);
 	}
 }
 

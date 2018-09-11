@@ -38,7 +38,7 @@ void Matrix::setAt(int row, int column, float value) {
 		zeroIndexedSetAt(row - 1, column - 1, value);
 	}
 
-Matrix Matrix:: operator*(const Matrix& m) {
+Matrix Matrix:: operator*(const Matrix& m) const{
 	int rows = this->nRows;
 	int columns = m.nColumns;
 

@@ -93,9 +93,45 @@ void RenderWindow::setProjectionParameters(float projectionAngle, unsigned int s
 	view.setProjectionParameters(projectionAngle, scrWidth, scrHeight);
 }
 
-void RenderWindow::updateLookAtMatrix(Matrix lookAt)
+void RenderWindow::updateProjectionWindowSize()
 {
-	
+	if (view.getProjectionType() == View::PROJECTION_TYPE::Parallel) {
+		const BoundingBox *box = getWindowObjectsBoundingBox();
+		Point3D lowerLeftCorner = box->getLowerLeftCorner();
+		Point3D upperRightCorner = box->getUpperRightCorner();
+
+		Matrix pointHolder(4, 1);
+		const Vec* lowerLeftCornerVector = lowerLeftCorner.getCoordinates();
+		pointHolder.copyColumn(1, *lowerLeftCornerVector);
+		//transform to eye space
+		Matrix transformedLowerLeftCorner = view.getLookAtMatrix()*pointHolder;
+
+		const Vec* upperRightCornerVector = upperRightCorner.getCoordinates();
+		pointHolder.copyColumn(1, *upperRightCornerVector);
+		//transform to eye space
+		Matrix transformedUpperRightCorner = view.getLookAtMatrix()*pointHolder;
+
+		float left = std::min(transformedLowerLeftCorner.getAt(1, 1), transformedUpperRightCorner.getAt(1, 1));
+		float right = std::max(transformedLowerLeftCorner.getAt(1, 1), transformedUpperRightCorner.getAt(1, 1));
+
+		float bottom = std::min(transformedLowerLeftCorner.getAt(2, 1), transformedUpperRightCorner.getAt(2, 1));
+		float top = std::max(transformedLowerLeftCorner.getAt(2, 1), transformedUpperRightCorner.getAt(2, 1));
+
+		float requiredAspectRatio = (float)view.getScreenWidth() / view.getScreenHeight();
+		float steps = (right - left) / requiredAspectRatio + 1;
+
+		float correctedRight = left + steps * requiredAspectRatio;
+		float correctedTop = bottom + steps * 1.0; //for each aspect ratio amount increase in x, increase 1 in y
+
+		float correctedLeft = left - (correctedRight - right) / 2.0;
+		float correctedBottom = bottom - (correctedTop - top) / 2.0;
+
+		float nearby = -1.0* std::max(transformedLowerLeftCorner.getAt(3, 1), transformedUpperRightCorner.getAt(3, 1));
+		float faraway = -1.0*std::min(transformedLowerLeftCorner.getAt(3, 1), transformedUpperRightCorner.getAt(3, 1));
+
+		std::cout << "viewing volume: " << left << ", " << right << ", " << bottom << ", " << top << ", " << nearby << ", " << faraway << std::endl;
+		view.setProjectionWindowSize(correctedLeft*2.0, correctedRight*2.0, correctedBottom*2.0, correctedTop*2.0, 0.1, 1.0e5);
+	}
 }
 
 const BoundingBox* RenderWindow::getWindowObjectsBoundingBox()
