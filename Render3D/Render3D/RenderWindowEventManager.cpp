@@ -26,7 +26,7 @@ void scroll_callback(GLFWwindow* wnd, double xoffset, double yoffset)
 		return;
 	}
 	const BoundingBox *box = window->getWindowObjectsBoundingBox();
-	float partRange = findDistance(box->getLowerLeftCorner(), box->getUpperRightCorner());
+	float partRange = GeometryUtility::findDistance(box->getLowerLeftCorner(), box->getUpperRightCorner());
 	float scale = (partRange / 20.0)*yoffset;
 	View view = window->getView();
 	Vec newDirection = Vec(view.getCameraDirection());
@@ -58,6 +58,13 @@ void cursor_position_callback(GLFWwindow * wnd, double xPos, double yPos)
 		newCameraPosition = newCameraPosition + window->getView().getCameraUp().scale(positionYChange);
 		Vec newCameraTarget = window->getView().getCameraTarget();
 		window->setViewParameters(newCameraPosition, newCameraTarget);
+
+		//compute new projection parameters for parallel projection
+		if (window->getView().getProjectionType() == View::PROJECTION_TYPE::Parallel) {
+			float volume[6];
+			calculateViewingVolume(window, volume);
+			window->setProjectionWindowParameters(volume[0], volume[1], volume[2], volume[3], volume[4], volume[5]);
+		}
 	}
 
 }
@@ -109,7 +116,14 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 			Vec zoomOffCameraPosition = direction.scale(zoomOffScale) + targetPoint;
 
 			window->setViewParameters(zoomOffCameraPosition, targetPoint);
-			window->updateProjectionWindowSize();
+
+			//compute new projection parameters for parallel projection
+			if (window->getView().getProjectionType() == View::PROJECTION_TYPE::Parallel) {
+				float volume[6];
+				calculateViewingVolume(window, volume);
+				window->setProjectionWindowParameters(volume[0], volume[1], volume[2], volume[3], volume[4], volume[5]);
+			}
+			
 
 		}
 	}
@@ -134,7 +148,7 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 
 float findZoomOffDistance(const BoundingBox *box)
 {
-	float farthestPoint = findDistance(box->getLowerLeftCorner(), box->getCenterPoint());
+	float farthestPoint = GeometryUtility::findDistance(box->getLowerLeftCorner(), box->getCenterPoint());
 	std::cout << "farthest point distance: " << farthestPoint << std::endl;
 
 	float perspectiveAngle = 45.0; //in degrees
@@ -144,12 +158,46 @@ float findZoomOffDistance(const BoundingBox *box)
 	return positionScale;
 }
 
-float findDistance(const Point3D& point1, const Point3D& point2) {
+void calculateViewingVolume(const RenderWindow* window, float * volume)
+{
+	const BoundingBox *box = window->getWindowObjectsBoundingBox();
+	float maxDistance = GeometryUtility::findDistance(box->getLowerLeftCorner(), box->getUpperRightCorner());
+	Vec centerPoint = *(box->getCenterPoint().getCoordinates());
+	Vec cameraSpaceCenterPoint = GeometryUtility::transformVector(window->getView().getLookAtMatrix(), centerPoint);
 
-	float xDiff = point1.getCoordinates()->getElementAt(1) - point2.getCoordinates()->getElementAt(1);
-	float yDiff = point1.getCoordinates()->getElementAt(2) - point2.getCoordinates()->getElementAt(2);
-	float zDiff = point1.getCoordinates()->getElementAt(3) - point2.getCoordinates()->getElementAt(3);
-	float dist = sqrt(pow(xDiff, 2) + pow(yDiff, 2) + pow(zDiff, 2));
-	
-	return dist;
+	float scrWidth = window->getView().getScreenWidth();
+	float scrHeight = window->getView().getScreenHeight();
+
+	float left, right, bottom, top;
+
+	if (scrWidth > scrHeight) {
+		float aspectRatio = scrWidth / scrHeight;
+		left = cameraSpaceCenterPoint.getElementAt(1) - maxDistance * aspectRatio / 2.0;
+		right = cameraSpaceCenterPoint.getElementAt(1) + maxDistance * aspectRatio / 2.0;
+		bottom = cameraSpaceCenterPoint.getElementAt(2) - maxDistance / 2.0;
+		top = cameraSpaceCenterPoint.getElementAt(2) + maxDistance / 2.0;
+	}
+	else if (scrWidth < scrHeight) {
+		float aspectRatio = scrHeight / scrWidth;
+		left = cameraSpaceCenterPoint.getElementAt(1) - maxDistance / 2.0;
+		right = cameraSpaceCenterPoint.getElementAt(1) + maxDistance / 2.0;
+		bottom = cameraSpaceCenterPoint.getElementAt(2) - maxDistance * aspectRatio / 2.0;
+		top = cameraSpaceCenterPoint.getElementAt(2) + maxDistance * aspectRatio / 2.0;
+	}
+	else {
+		left = cameraSpaceCenterPoint.getElementAt(1) - maxDistance / 2.0;
+		right = cameraSpaceCenterPoint.getElementAt(1) + maxDistance / 2.0;
+		bottom = cameraSpaceCenterPoint.getElementAt(2) - maxDistance / 2.0;
+		top = cameraSpaceCenterPoint.getElementAt(2) + maxDistance / 2.0;
+	}
+
+	float nearby = 0.1;
+	float faraway = 1.0e5;
+
+	volume[0] = left; volume[1] = right; volume[2] = bottom; volume[3] = top;
+	volume[4] = nearby; volume[5] = faraway;
+
 }
+
+
+

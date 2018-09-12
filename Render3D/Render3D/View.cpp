@@ -13,6 +13,16 @@ void View::setViewParameters(Vec position, Vec target)
 	computeLookAtMatrix();
 }
 
+const Matrix & View::getProjectionMatrix() const
+{
+	if (projectionType == PROJECTION_TYPE::Parallel) {
+		return projectionParallel;
+	}
+	else {
+		return projectionPerspective;
+	}
+}
+
 void View::setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight)
 {
 	this->projectionAngle = projectionAngle;
@@ -89,25 +99,24 @@ void View::computeLookAtMatrix()
 
 void View::computeProjectionMatrix()
 {
-	if (projectionType == PROJECTION_TYPE::Perpective) {
-		std::cout << "Using perspective projection" << std::endl;
-		projectionGlm = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 1.0e5f);
-		projection = convertGlmMatrix(projectionGlm);
-	}
-	else {
-		std::cout << "Using parallel projection" << std::endl;
-		//glm::mat4 projectionGlm = glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight, 0.1f, 1.0e5f);
+	//compute perspective projection matrix
+	projectionGlm = glm::perspective(glm::radians(projectionAngle), (float)scrWidth / (float)scrHeight, 0.1f, 1.0e5f);
+	projectionPerspective = convertGlmMatrix(projectionGlm);
+	
+	//compute parallel projection matrix
 
-		glm::mat4 projectionGlm = glm::ortho(projectionWindowLeftEnd, projectionWindowRightEnd,
-			projectionWindowBottomEnd, projectionWindowTopEnd,
-			projectionWindowNearEnd, projectionWindowFarEnd);
+	//glm::mat4 projectionGlm = glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight, 0.1f, 1.0e5f);
 
-		projection = convertGlmMatrix(projectionGlm);
+	glm::mat4 projectionGlm = glm::ortho(projectionWindowLeftEnd, projectionWindowRightEnd,
+		projectionWindowBottomEnd, projectionWindowTopEnd,
+		projectionWindowNearEnd, projectionWindowFarEnd);
 
-		//computeOrthoGraphicProjectionMatrix(projectionWindowLeftEnd, projectionWindowRightEnd, 
-		//	projectionWindowBottomEnd, projectionWindowTopEnd,
-		//	projectionWindowNearEnd, projectionWindowFarEnd);
-	}
+	projectionParallel = convertGlmMatrix(projectionGlm);
+
+	//computeOrthoGraphicProjectionMatrix(projectionWindowLeftEnd, projectionWindowRightEnd, 
+	//	projectionWindowBottomEnd, projectionWindowTopEnd,
+	//	projectionWindowNearEnd, projectionWindowFarEnd);
+
 }
 
 Matrix View::convertGlmMatrix(glm::mat4& m) {
@@ -127,10 +136,10 @@ Matrix View::convertGlmMatrix(glm::mat4& m) {
 
 void View::computeOrthoGraphicProjectionMatrix(float left, float right, float bottom, float top, float near, float far)
 {
-	projection.setAt(1, 1, 2.0 / (right - left));
-	projection.setAt(2, 2, 2.0 / (top-bottom));
-	projection.setAt(3, 3, -2.0 / (far - near));
-	projection.setAt(1, 4, -(right + left) / (right - left));
-	projection.setAt(2, 4, -(top + bottom) / (top - bottom));
-	projection.setAt(3, 4, -(far + near) / (far - near));
+	projectionParallel.setAt(1, 1, 2.0 / (right - left));
+	projectionParallel.setAt(2, 2, 2.0 / (top-bottom));
+	projectionParallel.setAt(3, 3, -2.0 / (far - near));
+	projectionParallel.setAt(1, 4, -(right + left) / (right - left));
+	projectionParallel.setAt(2, 4, -(top + bottom) / (top - bottom));
+	projectionParallel.setAt(3, 4, -(far + near) / (far - near));
 }

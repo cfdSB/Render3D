@@ -164,9 +164,14 @@ void RenderWindow::updateProjectionWindowSize()
 	}
 }
 
-const BoundingBox* RenderWindow::getWindowObjectsBoundingBox()
+const BoundingBox* RenderWindow::getWindowObjectsBoundingBox() const
 {
 	return renderObjects.at(0)->getDisplayableObject()->getBoundingBox();
+}
+
+void RenderWindow::setProjectionWindowParameters(float left, float right, float bottom, float top, float nearby, float faraway)
+{
+	view.setProjectionWindowSize(left, right, bottom, top, nearby, faraway);
 }
 
 

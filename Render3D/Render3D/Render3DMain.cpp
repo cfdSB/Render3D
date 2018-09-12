@@ -32,6 +32,9 @@ std::string sectionOrigin;
 
 int main() {
 
+	//write a test cube stl
+	//DebugUtilities::writeCubeStl(1200.0, 800.0, 800.0, 1600.0, 1200.0, 1200.0);
+
 	//--------------
 	//read input file (no GUI for this project yet)
 	//--------------

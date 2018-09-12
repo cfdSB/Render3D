@@ -9,6 +9,7 @@
 #include "Matrix.h"
 #include "RenderWindowEventManager.h"
 #include <algorithm>
+#include "GeometryUtility.h"
 
 class RenderWindow
 {
@@ -46,15 +47,16 @@ public:
 	void setViewParameters(Vec position, Vec targetPoint);
 	void setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight);
 	void updateProjectionWindowSize();
-	const View& getView() { return view; };
+	const View& getView() const { return view; };
 	double getMouseXposition() { return pos.xPos; };
 	double getMouseYposition() { return pos.yPos; };
 	void setMouseXposition(double x) { pos.xPos = x; };
 	void setMouseYposition(double y) { pos.yPos = y; };
-	const BoundingBox* getWindowObjectsBoundingBox();
+	const BoundingBox* getWindowObjectsBoundingBox() const;
 	void setMeshDisplayed(bool status) { isMeshDisplayed = status; };
 	bool getMeshDisplayed() const { return isMeshDisplayed; };
 	void setViewProjectionType(View::PROJECTION_TYPE type) { view.setProjectionType(type); };
+	void setProjectionWindowParameters(float left, float right, float bottom, float top, float nearby, float faraway);
 };
 
 
