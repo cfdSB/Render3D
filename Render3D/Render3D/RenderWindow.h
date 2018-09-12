@@ -35,6 +35,9 @@ private:
 	void render();
 	void configureGlobalOpenglState();
 
+	float findMin(float p1, float p2, float p3, float p4);
+	float findMax(float p1, float p2, float p3, float p4);
+
 public:
 	RenderWindow();
 	virtual ~RenderWindow();

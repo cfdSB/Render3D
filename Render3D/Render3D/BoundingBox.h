@@ -5,7 +5,7 @@
 class BoundingBox
 {
 private:
-	Point3D * lowestCorner; 
+	Point3D *lowestCorner; 
 	Point3D *highestCorner;
 	Point3D *centerPoint;
 	bool initialized = false;

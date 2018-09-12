@@ -14,6 +14,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 		glViewport(0, 0, width, height);
 		RenderWindow *wnd = static_cast<RenderWindow*>(glfwGetWindowUserPointer(window));
 		wnd->setProjectionParameters(45.0, width, height);
+		wnd->updateProjectionWindowSize();
 	}
 }
 
@@ -102,12 +103,14 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods)
 			RenderWindow *window = static_cast<RenderWindow*> (glfwGetWindowUserPointer(wnd));
 			const BoundingBox *box = window->getWindowObjectsBoundingBox();
 			float zoomOffScale = findZoomOffDistance(box);
-			std::cout << "camera zoomOff distance: " << zoomOffScale << std::endl;
+
 			Vec direction = Vec(window->getView().getCameraDirection());
 			Vec targetPoint = *(box->getCenterPoint().getCoordinates());
 			Vec zoomOffCameraPosition = direction.scale(zoomOffScale) + targetPoint;
+
 			window->setViewParameters(zoomOffCameraPosition, targetPoint);
 			window->updateProjectionWindowSize();
+
 		}
 	}
 	else if (key == GLFW_KEY_M && action == GLFW_PRESS) {

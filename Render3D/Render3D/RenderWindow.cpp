@@ -1,5 +1,6 @@
 #include "RenderWindow.h"
 #include <iostream>
+#include "DebugUtilities.h"
 
 
 
@@ -99,38 +100,67 @@ void RenderWindow::updateProjectionWindowSize()
 		const BoundingBox *box = getWindowObjectsBoundingBox();
 		Point3D lowerLeftCorner = box->getLowerLeftCorner();
 		Point3D upperRightCorner = box->getUpperRightCorner();
+		Point3D corner3(lowerLeftCorner.getCoordinates()->getElementAt(1),
+			upperRightCorner.getCoordinates()->getElementAt(2),
+			upperRightCorner.getCoordinates()->getElementAt(3));
+		
+		Point3D corner4(upperRightCorner.getCoordinates()->getElementAt(1),
+			lowerLeftCorner.getCoordinates()->getElementAt(2),
+			lowerLeftCorner.getCoordinates()->getElementAt(3));
 
-		Matrix pointHolder(4, 1);
+		Matrix pointsHolder(4, 4);
 		const Vec* lowerLeftCornerVector = lowerLeftCorner.getCoordinates();
-		pointHolder.copyColumn(1, *lowerLeftCornerVector);
-		//transform to eye space
-		Matrix transformedLowerLeftCorner = view.getLookAtMatrix()*pointHolder;
-
 		const Vec* upperRightCornerVector = upperRightCorner.getCoordinates();
-		pointHolder.copyColumn(1, *upperRightCornerVector);
+		const Vec* corner3Vector = corner3.getCoordinates();
+		const Vec* corner4Vector = corner4.getCoordinates();
+
+		pointsHolder.copyColumn(1, *lowerLeftCornerVector);
+		pointsHolder.copyColumn(2, *upperRightCornerVector);
+		pointsHolder.copyColumn(3, *corner3Vector);
+		pointsHolder.copyColumn(4, *corner4Vector);
+
+		pointsHolder.setAt(4, 1, 1.0);
+		pointsHolder.setAt(4, 2, 1.0);
+		pointsHolder.setAt(4, 3, 1.0);
+		pointsHolder.setAt(4, 4, 1.0);
+	
+		//std::cout << "Points matrix" << std::endl;
+		//DebugUtilities::printMatrix(pointsHolder);
+
 		//transform to eye space
-		Matrix transformedUpperRightCorner = view.getLookAtMatrix()*pointHolder;
+		Matrix transformedPoints = view.getLookAtMatrix()*pointsHolder;
 
-		float left = std::min(transformedLowerLeftCorner.getAt(1, 1), transformedUpperRightCorner.getAt(1, 1));
-		float right = std::max(transformedLowerLeftCorner.getAt(1, 1), transformedUpperRightCorner.getAt(1, 1));
+		//std::cout << "eye space transformed bounding box matrix" << std::endl;
+		//DebugUtilities::printMatrix(transformedPoints);
 
-		float bottom = std::min(transformedLowerLeftCorner.getAt(2, 1), transformedUpperRightCorner.getAt(2, 1));
-		float top = std::max(transformedLowerLeftCorner.getAt(2, 1), transformedUpperRightCorner.getAt(2, 1));
+		//find min max coordinates in each direction
 
-		float requiredAspectRatio = (float)view.getScreenWidth() / view.getScreenHeight();
+		float left = findMin(transformedPoints.getAt(1, 1), transformedPoints.getAt(1, 2), transformedPoints.getAt(1, 3), transformedPoints.getAt(1, 4));
+		float right = findMax(transformedPoints.getAt(1, 1), transformedPoints.getAt(1, 2), transformedPoints.getAt(1, 3), transformedPoints.getAt(1, 4));
+
+		float bottom = findMin(transformedPoints.getAt(2, 1), transformedPoints.getAt(2, 2), transformedPoints.getAt(2, 3), transformedPoints.getAt(2, 4));
+		float top = findMax(transformedPoints.getAt(2, 1), transformedPoints.getAt(2, 2), transformedPoints.getAt(2, 3), transformedPoints.getAt(2, 4));
+
+		float requiredAspectRatio = (float)(view.getScreenWidth() / view.getScreenHeight());
 		float steps = (right - left) / requiredAspectRatio + 1;
 
 		float correctedRight = left + steps * requiredAspectRatio;
 		float correctedTop = bottom + steps * 1.0; //for each aspect ratio amount increase in x, increase 1 in y
 
-		float correctedLeft = left - (correctedRight - right) / 2.0;
-		float correctedBottom = bottom - (correctedTop - top) / 2.0;
+		float correctionRight = correctedRight - right;
+		float correctionTop = correctedTop - top;
 
-		float nearby = -1.0* std::max(transformedLowerLeftCorner.getAt(3, 1), transformedUpperRightCorner.getAt(3, 1));
-		float faraway = -1.0*std::min(transformedLowerLeftCorner.getAt(3, 1), transformedUpperRightCorner.getAt(3, 1));
+		float correctedLeft = left - correctionRight / 2.0;
+		correctedRight = correctedRight - correctionRight / 2.0;
 
-		std::cout << "viewing volume: " << left << ", " << right << ", " << bottom << ", " << top << ", " << nearby << ", " << faraway << std::endl;
-		view.setProjectionWindowSize(correctedLeft*2.0, correctedRight*2.0, correctedBottom*2.0, correctedTop*2.0, 0.1, 1.0e5);
+		float correctedBottom = bottom - correctionTop / 2.0;
+		correctedTop = correctedTop - correctionTop / 2.0;
+
+		float nearby = -1.0 * findMin(transformedPoints.getAt(3, 1), transformedPoints.getAt(3, 2), transformedPoints.getAt(3, 3), transformedPoints.getAt(3, 4));
+		float faraway = -1.0 * findMax(transformedPoints.getAt(3, 1), transformedPoints.getAt(3, 2), transformedPoints.getAt(3, 3), transformedPoints.getAt(3, 4));
+
+		std::cout << "viewing volume: " << correctedLeft << ", " << correctedRight << ", " << correctedBottom << ", " << correctedTop << ", " << nearby << ", " << faraway << std::endl;
+		view.setProjectionWindowSize(correctedLeft, correctedRight, correctedBottom, correctedTop, 0.1, 1.0e5);
 	}
 }
 
@@ -211,6 +241,24 @@ void RenderWindow::render() {
 void RenderWindow::configureGlobalOpenglState()
 {
 	glEnable(GL_DEPTH_TEST);
+}
+
+float RenderWindow::findMin(float p1, float p2, float p3, float p4)
+{
+	float min1 = std::min(p1, p2);
+	float min2 = std::min(p3, p4);
+	float min = std::min(min1, min2);
+
+	return min;
+}
+
+float RenderWindow::findMax(float p1, float p2, float p3, float p4)
+{
+	float max1 = std::max(p1, p2);
+	float max2 = std::max(p3, p4);
+	float max = std::max(max1, max2);
+
+	return max;
 }
 
 void RenderWindow::processInput(GLFWwindow *window)

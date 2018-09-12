@@ -97,10 +97,16 @@ void View::computeProjectionMatrix()
 	else {
 		std::cout << "Using parallel projection" << std::endl;
 		//glm::mat4 projectionGlm = glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight, 0.1f, 1.0e5f);
-		//projection = convertGlmMatrix(projectionGlm);
-		computeOrthoGraphicProjectionMatrix(projectionWindowLeftEnd, projectionWindowRightEnd, 
+
+		glm::mat4 projectionGlm = glm::ortho(projectionWindowLeftEnd, projectionWindowRightEnd,
 			projectionWindowBottomEnd, projectionWindowTopEnd,
 			projectionWindowNearEnd, projectionWindowFarEnd);
+
+		projection = convertGlmMatrix(projectionGlm);
+
+		//computeOrthoGraphicProjectionMatrix(projectionWindowLeftEnd, projectionWindowRightEnd, 
+		//	projectionWindowBottomEnd, projectionWindowTopEnd,
+		//	projectionWindowNearEnd, projectionWindowFarEnd);
 	}
 }
 

@@ -32,3 +32,37 @@ void Point3D::setCoordinates(float xc, float yc, float zc)
 {
 	data->addElement(1, xc).addElement(2, yc).addElement(3, zc);
 }
+
+Point3D::Point3D(const Point3D & p)
+{
+	if (p.data) {
+		data = new Vec(size);
+		for (int i = 1; i <= size; i++) {
+			data->addElement(i, p.data->getElementAt(i));
+		}
+	}
+	else {
+		data = nullptr;
+	}
+}
+
+Point3D & Point3D::operator=(const Point3D & p)
+{
+	if (this == &p) {
+		return *this;
+	}
+
+	if (data)
+		delete data;
+
+	if (p.data) {
+		data = new Vec(size);
+		for (int i = 1; i <= size; i++) {
+			data->addElement(i, p.data->getElementAt(i));
+		}
+	}
+	else {
+		data = nullptr;
+	}
+	return *this;
+}

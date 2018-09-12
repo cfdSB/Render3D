@@ -14,6 +14,8 @@ public:
 	virtual ~Point3D();
 	void setCoordinates(float xc, float yc, float zc);
 	const Vec* getCoordinates() const { return data; };
+	Point3D(const Point3D& p);
+	Point3D& operator=(const Point3D& p);
 };
 
 #endif
