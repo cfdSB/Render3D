@@ -60,11 +60,11 @@ void cursor_position_callback(GLFWwindow * wnd, double xPos, double yPos)
 		window->setViewParameters(newCameraPosition, newCameraTarget);
 
 		//compute new projection parameters for parallel projection
-		if (window->getView().getProjectionType() == View::PROJECTION_TYPE::Parallel) {
+		/*if (window->getView().getProjectionType() == View::PROJECTION_TYPE::Parallel) {
 			float volume[6];
 			calculateViewingVolume(window, volume);
 			window->setProjectionWindowParameters(volume[0], volume[1], volume[2], volume[3], volume[4], volume[5]);
-		}
+		}*/ //NO NEED
 	}
 
 }
