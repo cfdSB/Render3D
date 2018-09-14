@@ -50,6 +50,7 @@ public:
 	void setProjectionType(PROJECTION_TYPE type);
 	void setProjectionWindowSize(float left, float right, float bottom, float top, float nearby, float faraway);
 	PROJECTION_TYPE getProjectionType() const { return projectionType; };
+	Vec getProjectionWindowSize() const;
 
 private:
 	void computeLookAtMatrix();

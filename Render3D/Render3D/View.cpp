@@ -64,6 +64,16 @@ void View::setProjectionWindowSize(float left, float right, float bottom, float 
 	computeProjectionMatrix();
 }
 
+Vec View::getProjectionWindowSize() const
+{
+	Vec windowsize(6);
+	windowsize.addElement(1, projectionWindowLeftEnd).addElement(2, projectionWindowRightEnd)
+		.addElement(3, projectionWindowBottomEnd).addElement(4, projectionWindowTopEnd)
+		.addElement(5, projectionWindowNearEnd).addElement(6, projectionWindowFarEnd);
+
+	return windowsize;
+}
+
 void View::computeLookAtMatrix()
 {
 	Vec tmp = position - target;
@@ -107,15 +117,15 @@ void View::computeProjectionMatrix()
 
 	//glm::mat4 projectionGlm = glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight, 0.1f, 1.0e5f);
 
-	glm::mat4 projectionGlm = glm::ortho(projectionWindowLeftEnd, projectionWindowRightEnd,
+	/*glm::mat4 projectionGlm = glm::ortho(projectionWindowLeftEnd, projectionWindowRightEnd,
 		projectionWindowBottomEnd, projectionWindowTopEnd,
 		projectionWindowNearEnd, projectionWindowFarEnd);
 
-	projectionParallel = convertGlmMatrix(projectionGlm);
+	projectionParallel = convertGlmMatrix(projectionGlm);*/
 
-	//computeOrthoGraphicProjectionMatrix(projectionWindowLeftEnd, projectionWindowRightEnd, 
-	//	projectionWindowBottomEnd, projectionWindowTopEnd,
-	//	projectionWindowNearEnd, projectionWindowFarEnd);
+	computeOrthoGraphicProjectionMatrix(projectionWindowLeftEnd, projectionWindowRightEnd, 
+		projectionWindowBottomEnd, projectionWindowTopEnd,
+		projectionWindowNearEnd, projectionWindowFarEnd);
 
 }
 

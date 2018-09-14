@@ -14,7 +14,42 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 		glViewport(0, 0, width, height);
 		RenderWindow *wnd = static_cast<RenderWindow*>(glfwGetWindowUserPointer(window));
 		wnd->setProjectionParameters(45.0, width, height);
-		wnd->updateProjectionWindowSize();
+		
+		Vec currentWindowSize = wnd->getView().getProjectionWindowSize();
+		double screenWidth = (double)wnd->getView().getScreenWidth();
+		double screenHeight = (double)wnd->getView().getScreenHeight();
+		double viewVolWidth = currentWindowSize.getElementAt(2) - currentWindowSize.getElementAt(1);
+		double viewVolHeight = currentWindowSize.getElementAt(4) - currentWindowSize.getElementAt(3);
+
+		double widthChange, heightChange;
+		if (screenWidth >= screenHeight) {
+			float aspectRatio = (float)screenWidth / (float)screenHeight;
+			double newVolHeight = viewVolWidth / aspectRatio;
+			heightChange = newVolHeight - viewVolHeight;
+			widthChange = 0.0;
+		}
+		else {
+			float aspectRatio = (float)screenHeight / (float)screenWidth;
+			double newWidth = viewVolHeight / aspectRatio;
+			widthChange = newWidth - viewVolWidth;
+			heightChange = 0.0;
+		}
+
+		double newLeft = currentWindowSize.getElementAt(1) - widthChange / 2.0;
+		double newRight = currentWindowSize.getElementAt(2) + widthChange / 2.0;
+		double newBottom = currentWindowSize.getElementAt(3) - heightChange / 2.0;
+		double newTop = currentWindowSize.getElementAt(4) + heightChange / 2.0;
+		double newNear = currentWindowSize.getElementAt(5);
+		double newFar = currentWindowSize.getElementAt(6);
+
+		float screenAspectRatio = (float)screenWidth / (float)screenHeight;
+		float viewingVolAspectRatio = (newRight - newLeft) / (newTop - newBottom);
+		std::cout << "Screen aspect ratio: " << screenAspectRatio << std::endl;
+		std::cout << "View Vol aspect ratio: " << viewingVolAspectRatio << std::endl;
+
+		wnd->setProjectionWindowParameters(newLeft, newRight, newBottom, newTop, newNear, newFar);
+
+
 	}
 }
 
@@ -25,13 +60,55 @@ void scroll_callback(GLFWwindow* wnd, double xoffset, double yoffset)
 		std::cout << "Error while getting window pointer" << std::endl;
 		return;
 	}
-	const BoundingBox *box = window->getWindowObjectsBoundingBox();
-	float partRange = GeometryUtility::findDistance(box->getLowerLeftCorner(), box->getUpperRightCorner());
-	float scale = (partRange / 20.0)*yoffset;
-	View view = window->getView();
-	Vec newDirection = Vec(view.getCameraDirection());
-	Vec newCameraPosition = view.getCameraPosition() + newDirection.scale(scale);
-	window->setViewParameters(newCameraPosition, view.getCameraTarget());
+	
+	if (window->getView().getProjectionType() == View::PROJECTION_TYPE::Perpective) {
+		const BoundingBox *box = window->getWindowObjectsBoundingBox();
+		float partRange = GeometryUtility::findDistance(box->getLowerLeftCorner(), box->getUpperRightCorner());
+		float scale = (partRange / 20.0)*yoffset;
+		View view = window->getView();
+		Vec newDirection = Vec(view.getCameraDirection());
+		Vec newCameraPosition = view.getCameraPosition() + newDirection.scale(scale);
+		window->setViewParameters(newCameraPosition, view.getCameraTarget());
+	}
+	else {
+
+		Vec currentWindowSize = window->getView().getProjectionWindowSize();
+		double screenWidth = (double)window->getView().getScreenWidth();
+		double screenHeight = (double)window->getView().getScreenHeight();
+		double viewVolWidth = currentWindowSize.getElementAt(2) - currentWindowSize.getElementAt(1);
+		double viewVolHeight = currentWindowSize.getElementAt(4) - currentWindowSize.getElementAt(3);
+
+
+		double widthChange, heightChange;
+		double percentChange = 2 * yoffset;
+
+		if (screenWidth >= screenHeight) {
+			widthChange = viewVolWidth*percentChange / 100.00;
+			double newWidth = viewVolWidth + widthChange;
+			double newHeight = newWidth / (screenWidth / screenHeight);
+			heightChange = newHeight - viewVolHeight;
+		}
+		else {
+			heightChange = viewVolHeight * percentChange / 100.00;
+			double newHeight = viewVolHeight + heightChange;
+			double newWidth = newHeight / (screenHeight / screenWidth);
+			widthChange = newWidth - viewVolWidth;
+		}
+		
+		double newLeft = currentWindowSize.getElementAt(1) - widthChange / 2.0;
+		double newRight = currentWindowSize.getElementAt(2) + widthChange / 2.0;
+		double newBottom = currentWindowSize.getElementAt(3) - heightChange / 2.0;
+		double newTop = currentWindowSize.getElementAt(4) + heightChange / 2.0;
+		double newNear = currentWindowSize.getElementAt(5);
+		double newFar = currentWindowSize.getElementAt(6);
+
+		window->setProjectionWindowParameters(newLeft, newRight, newBottom, newTop, newNear, newFar);
+
+		//float screenAspectRatio = (float)screenWidth / (float)screenHeight;
+		//float viewingVolAspectRatio = (newRight - newLeft) / (newTop - newBottom);
+		//std::cout << "Screen aspect ratio: " << screenAspectRatio << std::endl;
+		//std::cout << "View Vol aspect ratio: " << viewingVolAspectRatio << std::endl;
+	}
 }
 
 void cursor_position_callback(GLFWwindow * wnd, double xPos, double yPos)
@@ -197,6 +274,10 @@ void calculateViewingVolume(const RenderWindow* window, float * volume)
 	volume[0] = left; volume[1] = right; volume[2] = bottom; volume[3] = top;
 	volume[4] = nearby; volume[5] = faraway;
 
+	//float screenAspectRatio = (float)scrWidth / (float)scrHeight;
+	//float viewingVolAspectRatio = (right - left) / (top - bottom);
+	//std::cout << "Screen aspect ratio: " << screenAspectRatio << std::endl;
+	//std::cout << "View Vol aspect ratio: " << viewingVolAspectRatio << std::endl;
 }
 
 
