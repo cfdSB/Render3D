@@ -42,10 +42,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 		double newNear = currentWindowSize.getElementAt(5);
 		double newFar = currentWindowSize.getElementAt(6);
 
-		float screenAspectRatio = (float)screenWidth / (float)screenHeight;
-		float viewingVolAspectRatio = (newRight - newLeft) / (newTop - newBottom);
-		std::cout << "Screen aspect ratio: " << screenAspectRatio << std::endl;
-		std::cout << "View Vol aspect ratio: " << viewingVolAspectRatio << std::endl;
+		//float screenAspectRatio = (float)screenWidth / (float)screenHeight;
+		//float viewingVolAspectRatio = (newRight - newLeft) / (newTop - newBottom);
+		//std::cout << "Screen aspect ratio: " << screenAspectRatio << std::endl;
+		//std::cout << "View Vol aspect ratio: " << viewingVolAspectRatio << std::endl;
 
 		wnd->setProjectionWindowParameters(newLeft, newRight, newBottom, newTop, newNear, newFar);
 
