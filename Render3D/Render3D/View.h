@@ -45,7 +45,7 @@ public:
 	void setProjectionParameters(float projectionAngle, unsigned int scrWidth, unsigned int scrHeight);
 	unsigned int getScreenWidth() const { return scrWidth; };
 	unsigned int getScreenHeight() const { return scrHeight; };
-	glm::mat4 getProjectionMatrixGlm() const { return projectionGlm; };
+	glm::mat4 getProjectionMatrixGlm() const;
 	glm::mat4 getViewMatrixGlm() const;
 	void setProjectionType(PROJECTION_TYPE type);
 	void setProjectionWindowSize(float left, float right, float bottom, float top, float nearby, float faraway);
@@ -57,6 +57,7 @@ private:
 	void computeProjectionMatrix();
 	Matrix convertGlmMatrix(glm::mat4& m);
 	void computeOrthoGraphicProjectionMatrix(float left, float right, float bottom, float top, float near, float far);
+	glm::mat4 convertMatrixToGlm(const Matrix& m) const;
 };
 #endif
 

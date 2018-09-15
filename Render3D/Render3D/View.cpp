@@ -32,19 +32,16 @@ void View::setProjectionParameters(float projectionAngle, unsigned int scrWidth,
 	computeProjectionMatrix();
 }
 
-glm::mat4 View::getViewMatrixGlm() const
+glm::mat4 View::getProjectionMatrixGlm() const
 {
-	glm::mat4 viewMatGlm;
-	for (int i = 1; i <= 4; i++) {
-		glm::vec4 row;
-		for (int j = 1; j <= 4; j++) {
-			row[j-1] = lookAt.getAt(j, i);
-		}
-		viewMatGlm[i - 1] = row;
+	if (projectionType == PROJECTION_TYPE::Parallel) {
+		return convertMatrixToGlm(projectionParallel);
 	}
-
-	return viewMatGlm;
+	else {
+		return convertMatrixToGlm(projectionPerspective);
+	}	
 }
+
 
 void View::setProjectionType(PROJECTION_TYPE type)
 {
@@ -77,32 +74,32 @@ Vec View::getProjectionWindowSize() const
 void View::computeLookAtMatrix()
 {
 	Vec tmp = position - target;
-	//std::cout << "tmp vector" << std::endl;
-	//DebugUtilities::printVector(tmp);
+	std::cout << "tmp vector" << std::endl;
+	DebugUtilities::printVector(tmp);
 
 	cameraDirection = tmp.normalize();
-	//std::cout << "camera direction" << std::endl;
-	//DebugUtilities::printVector(cameraDirection);
+	std::cout << "camera direction" << std::endl;
+	DebugUtilities::printVector(cameraDirection);
 
 	tmpUp = Vec(3);
 	tmpUp.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 1.0);
 
 	Vec tmp2 = tmpUp ^ cameraDirection;
 	cameraRight = tmp2.normalize();
-	//std::cout << "camera Right" << std::endl;
-	//DebugUtilities::printVector(cameraRight);
+	std::cout << "camera Right" << std::endl;
+	DebugUtilities::printVector(cameraRight);
 
 	Vec tmp3 = cameraDirection ^ cameraRight;
 	cameraUp = tmp3.normalize();
-	//std::cout << "camera up" << std::endl;
-	//DebugUtilities::printVector(cameraUp);
+	std::cout << "camera up" << std::endl;
+	DebugUtilities::printVector(cameraUp);
 
 	Matrix cameraCS(4, 4);
 	cameraCS.copyRow(1, cameraRight);
 	cameraCS.copyRow(2, cameraUp);
 	cameraCS.copyRow(3, cameraDirection);
-	//std::cout << "Camera CS matrix" << std::endl;
-	//DebugUtilities::printMatrix(cameraCS);
+	std::cout << "Camera CS matrix" << std::endl;
+	DebugUtilities::printMatrix(cameraCS);
 
 	lookAt = cameraCS * positionMat;
 }
@@ -152,4 +149,24 @@ void View::computeOrthoGraphicProjectionMatrix(float left, float right, float bo
 	projectionParallel.setAt(1, 4, -(right + left) / (right - left));
 	projectionParallel.setAt(2, 4, -(top + bottom) / (top - bottom));
 	projectionParallel.setAt(3, 4, -(far + near) / (far - near));
+}
+
+glm::mat4 View::convertMatrixToGlm(const Matrix & m) const
+{
+	glm::mat4 glmMat;
+
+	for (int i = 1; i <= 4; i++) {
+		glm::vec4 row;
+		for (int j = 1; j <= 4; j++) {
+			row[j - 1] = m.getAt(j, i);
+		}
+		glmMat[i - 1] = row;
+	}
+
+	return glmMat;
+}
+
+glm::mat4 View::getViewMatrixGlm() const
+{
+	return convertMatrixToGlm(lookAt);
 }

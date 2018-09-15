@@ -92,7 +92,7 @@ int main() {
 	//camera position and direction of looking to begin with
 	//-----
 	Vec cameraPosition(3);
-	cameraPosition.addElement(1, 100.0).addElement(2, -100.0).addElement(3, 100.0);  //isometric +x,-y,+z
+	cameraPosition.addElement(1, 1400.0).addElement(2, 0.0).addElement(3, 1000.0);  
 	Vec targetPoint(3);
 	//targetPoint.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
 	targetPoint = centerPoint;

@@ -33,7 +33,7 @@ void DebugUtilities::printMatrix(Matrix & m)
 void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax)
 {
 	std::ofstream file;
-	file.open("cube.stl", std::ios::out | std::ios::binary);
+	file.open("cube_2.stl", std::ios::out | std::ios::binary);
 	unsigned int totalTriangles = 12;
 	float normal[3];
 	float point1[3];
@@ -51,10 +51,10 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	float zlength = zmax - zmin;
 
 	//triangle 1
-	normal[0] = 0.0; normal[1] = 0.0; normal[2] = -1.0;
+	normal[0] = 0.0; normal[1] = -1.0; normal[2] = 0.0;
 	point1[0] = xmin; point1[1] = ymin; point1[2] = zmin;
 	point2[0] = xmin + xlength; point2[1] = ymin; point2[2] = zmin;
-	point3[0] = xmin; point3[1] = ymin + ylength; point3[2] = zmin;
+	point3[0] = xmin; point3[1] = ymin; point3[2] = zmin + zlength;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
 	file.write(reinterpret_cast<const char*>(&point1), sizeof(point1));
@@ -63,10 +63,10 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	file.write(reinterpret_cast<const char*>(&attrib), sizeof(attrib));
 
 	//triangle 2
-	normal[0] = 0.0; normal[1] = 0.0; normal[2] = -1.0;
+	normal[0] = 0.0; normal[1] = -1.0; normal[2] = 0.0;
 	point1[0] = xmin + xlength; point1[1] = ymin; point1[2] = zmin;
-	point2[0] = xmin + xlength; point2[1] = ymin + ylength; point2[2] = zmin;
-	point3[0] = xmin; point3[1] = ymin + ylength; point3[2] = zmin;
+	point2[0] = xmin + xlength; point2[1] = ymin ; point2[2] = zmin + zlength;
+	point3[0] = xmin; point3[1] = ymin; point3[2] = zmin + zlength;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
 	file.write(reinterpret_cast<const char*>(&point1), sizeof(point1));
@@ -77,8 +77,8 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	//triangle3
 	normal[0] = 1.0; normal[1] = 0.0; normal[2] = 0.0;
 	point1[0] = xmin + xlength; point1[1] = ymin; point1[2] = zmin;
-	point2[0] = xmin + xlength; point2[1] = ymin; point2[2] = zmin + zlength;
-	point3[0] = xmin + xlength; point3[1] = ymin + ylength; point3[2] = zmin;
+	point2[0] = xmin + xlength; point2[1] = ymin + ylength; point2[2] = zmin;
+	point3[0] = xmin + xlength; point3[1] = ymin; point3[2] = zmin + zlength;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
 	file.write(reinterpret_cast<const char*>(&point1), sizeof(point1));
@@ -88,9 +88,9 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 
 	//triangle4
 	normal[0] = 1.0; normal[1] = 0.0; normal[2] = 0.0;
-	point1[0] = xmin + xlength; point1[1] = ymin; point1[2] = zmin + zlength;
+	point1[0] = xmin + xlength; point1[1] = ymin + ylength; point1[2] = zmin;
 	point2[0] = xmin + xlength; point2[1] = ymin + ylength; point2[2] = zmin + zlength;
-	point3[0] = xmin + xlength; point3[1] = ymin + ylength; point3[2] = zmin;
+	point3[0] = xmin + xlength; point3[1] = ymin ; point3[2] = zmin + zlength;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
 	file.write(reinterpret_cast<const char*>(&point1), sizeof(point1));
@@ -99,9 +99,9 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	file.write(reinterpret_cast<const char*>(&attrib), sizeof(attrib));
 
 	//triangle5
-	normal[0] = 0.0; normal[1] = 0.0; normal[2] = 1.0;
-	point1[0] = xmin + xlength; point1[1] = ymin; point1[2] = zmin + zlength;
-	point2[0] = xmin; point2[1] = ymin; point2[2] = zmin + zlength;
+	normal[0] = 0.0; normal[1] = 1.0; normal[2] = 0.0;
+	point1[0] = xmin + xlength; point1[1] = ymin + ylength; point1[2] = zmin;
+	point2[0] = xmin; point2[1] = ymin + ylength; point2[2] = zmin;
 	point3[0] = xmin + xlength; point3[1] = ymin + ylength; point3[2] = zmin + zlength;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
@@ -111,8 +111,8 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	file.write(reinterpret_cast<const char*>(&attrib), sizeof(attrib));
 
 	//triangle6
-	normal[0] = 0.0; normal[1] = 0.0; normal[2] = 1.0;
-	point1[0] = xmin; point1[1] = ymin; point1[2] = zmin + zlength;
+	normal[0] = 0.0; normal[1] = 1.0; normal[2] = 0.0;
+	point1[0] = xmin; point1[1] = ymin + ylength; point1[2] = zmin;
 	point2[0] = xmin; point2[1] = ymin + ylength; point2[2] = zmin + zlength;
 	point3[0] = xmin + xlength; point3[1] = ymin + ylength; point3[2] = zmin + zlength;
 
@@ -124,7 +124,7 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 
 	//triangle7
 	normal[0] = -1.0; normal[1] = 0.0; normal[2] = 0.0;
-	point1[0] = xmin; point1[1] = ymin; point1[2] = zmin + zlength;
+	point1[0] = xmin; point1[1] = ymin + ylength; point1[2] = zmin;
 	point2[0] = xmin; point2[1] = ymin; point2[2] = zmin;
 	point3[0] = xmin; point3[1] = ymin + ylength; point3[2] = zmin + zlength;
 
@@ -137,7 +137,7 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	//triangle8
 	normal[0] = -1.0; normal[1] = 0.0; normal[2] = 0.0;
 	point1[0] = xmin; point1[1] = ymin; point1[2] = zmin;
-	point2[0] = xmin; point2[1] = ymin + ylength; point2[2] = zmin;
+	point2[0] = xmin; point2[1] = ymin; point2[2] = zmin + zlength;
 	point3[0] = xmin; point3[1] = ymin + ylength; point3[2] = zmin + zlength;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
@@ -147,10 +147,10 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	file.write(reinterpret_cast<const char*>(&attrib), sizeof(attrib));
 
 	//triangle9
-	normal[0] = 0.0; normal[1] = -1.0; normal[2] = 0.0;
+	normal[0] = 0.0; normal[1] = 0.0; normal[2] = -1.0;
 	point1[0] = xmin; point1[1] = ymin; point1[2] = zmin;
-	point2[0] = xmin; point2[1] = ymin; point2[2] = zmin + zlength;
-	point3[0] = xmin + xlength; point3[1] = ymin; point3[2] = zmin;
+	point2[0] = xmin; point2[1] = ymin + ylength; point2[2] = zmin;
+	point3[0] = xmin + xlength; point3[1] = ymin + ylength; point3[2] = zmin;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
 	file.write(reinterpret_cast<const char*>(&point1), sizeof(point1));
@@ -159,10 +159,10 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	file.write(reinterpret_cast<const char*>(&attrib), sizeof(attrib));
 
 	//triangle10
-	normal[0] = 0.0; normal[1] = -1.0; normal[2] = 0.0;
-	point1[0] = xmin; point1[1] = ymin; point1[2] = zmin + zlength;
-	point2[0] = xmin + xlength; point2[1] = ymin; point2[2] = zmin + zlength;
-	point3[0] = xmin + xlength; point3[1] = ymin; point3[2] = zmin;
+	normal[0] = 0.0; normal[1] = 0.0; normal[2] = -1.0;
+	point1[0] = xmin + xlength; point1[1] = ymin + ylength; point1[2] = zmin;
+	point2[0] = xmin + xlength; point2[1] = ymin; point2[2] = zmin;
+	point3[0] = xmin; point3[1] = ymin; point3[2] = zmin;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
 	file.write(reinterpret_cast<const char*>(&point1), sizeof(point1));
@@ -171,9 +171,9 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	file.write(reinterpret_cast<const char*>(&attrib), sizeof(attrib));
 
 	//triangle11
-	normal[0] = 0.0; normal[1] = 1.0; normal[2] = 0.0;
-	point1[0] = xmin; point1[1] = ymin + ylength; point1[2] = zmin;
-	point2[0] = xmin + xlength; point2[1] = ymin + ylength; point2[2] = zmin;
+	normal[0] = 0.0; normal[1] = 0.0; normal[2] = 1.0;
+	point1[0] = xmin; point1[1] = ymin; point1[2] = zmin + zlength;
+	point2[0] = xmin + xlength; point2[1] = ymin; point2[2] = zmin + zlength;
 	point3[0] = xmin; point3[1] = ymin + ylength; point3[2] = zmin + zlength;
 
 	file.write(reinterpret_cast<const char*>(&normal), sizeof(normal));
@@ -183,8 +183,8 @@ void DebugUtilities::writeCubeStl(float xmin, float ymin, float zmin, float xmax
 	file.write(reinterpret_cast<const char*>(&attrib), sizeof(attrib));
 
 	//triangle12
-	normal[0] = 0.0; normal[1] = 1.0; normal[2] = 0.0;
-	point1[0] = xmin + xlength; point1[1] = ymin + ylength; point1[2] = zmin;
+	normal[0] = 0.0; normal[1] = 0.0; normal[2] = 1.0;
+	point1[0] = xmin + xlength; point1[1] = ymin; point1[2] = zmin + zlength;
 	point2[0] = xmin + xlength; point2[1] = ymin + ylength; point2[2] = zmin + zlength;
 	point3[0] = xmin; point3[1] = ymin + ylength; point3[2] = zmin + zlength;
 

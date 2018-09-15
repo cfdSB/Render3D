@@ -130,6 +130,7 @@ void cursor_position_callback(GLFWwindow * wnd, double xPos, double yPos)
 		double positionXChange, positionYChange;
 		calculatePositionChange(wnd, xPos, yPos, &positionXChange, &positionYChange);
 		RenderWindow *window = static_cast<RenderWindow*> (glfwGetWindowUserPointer(wnd));
+		window->setMouseInDragMode(true);
 
 		Vec newCameraPosition = window->getView().getCameraPosition() - window->getView().getCameraRight().scale(positionXChange);
 		newCameraPosition = newCameraPosition + window->getView().getCameraUp().scale(positionYChange);
@@ -154,6 +155,19 @@ void mouse_button_callback(GLFWwindow * wnd, int button, int action, int mods)
 		glfwGetCursorPos(wnd, &xpos, &ypos);
 		window->setMouseXposition(xpos);
 		window->setMouseYposition(ypos);
+	}
+	else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE){
+		RenderWindow *window = static_cast<RenderWindow*>(glfwGetWindowUserPointer(wnd));
+
+		if (!window->isMouseInDragMode()) {
+			double xpos, ypos;
+			glfwGetCursorPos(wnd, &xpos, &ypos);
+			std::cout << "Mouse clicked at " << xpos << ", " << ypos << std::endl;
+			computeClickLocation(window, xpos, ypos);
+		}
+		else {
+			window->setMouseInDragMode(false);
+		}
 	}
 }
 
@@ -278,6 +292,65 @@ void calculateViewingVolume(const RenderWindow* window, float * volume)
 	//float viewingVolAspectRatio = (right - left) / (top - bottom);
 	//std::cout << "Screen aspect ratio: " << screenAspectRatio << std::endl;
 	//std::cout << "View Vol aspect ratio: " << viewingVolAspectRatio << std::endl;
+}
+
+void computeClickLocation(RenderWindow * window, double xPos, double yPos)
+{
+
+	double xcoord, ycoord, zcoord, wcoord;
+
+	//screen coordinates
+	xcoord = xPos;
+	ycoord = yPos;
+	zcoord = 0.0;
+	wcoord = 0.0;
+
+	std::cout << "Click screen coordinates: " << xcoord << " " << ycoord << std::endl;
+
+	//normalized device coordinates
+	xcoord = 2.0f* xPos / window->getView().getScreenWidth() - 1.0f;
+	ycoord = 1.0f - 2.0f*yPos / window->getView().getScreenHeight();
+
+	std::cout << "click Normalized Device coordinates: " << xcoord << " " << ycoord << std::endl;
+
+	//homogeneous clip coordinates
+	zcoord = -1.0;
+	wcoord = 1.0;
+
+	glm::vec4 vec_homo_clip(xcoord, ycoord, zcoord, wcoord);
+	std::cout << "click homo clip coordinates: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
+
+	//eye space or camera space coordinates
+	glm::mat4 projectionMatrix = window->getView().getProjectionMatrixGlm();
+	glm::vec4 eye_vect = glm::inverse(projectionMatrix)*vec_homo_clip;
+
+	//Now, we only needed to un - project the x, y part, so let's manually set the z,w part 
+	//to mean "forwards", and "not a point". z = -1.0 shows forward direction and w set to zero 
+	//means it is a direction vector and not a point.
+
+	eye_vect[2] = -1.0;
+	eye_vect[3] = 0.0;
+	xcoord = eye_vect[0]; ycoord = eye_vect[1]; zcoord = eye_vect[2]; wcoord = eye_vect[3];
+	std::cout << "click eye coordinates: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
+
+	//convert to world coordinates
+	glm::mat4 viewMatrix = window->getView().getViewMatrixGlm();
+	glm::vec4 world_vect = glm::inverse(viewMatrix)*eye_vect;
+
+	xcoord = world_vect[0]; ycoord = world_vect[1]; zcoord = world_vect[2]; wcoord = world_vect[3];
+
+	std::cout << "click world coordinates: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
+
+	//normalize the vector
+	glm::vec3 world_dir;
+	world_dir[0] = world_vect[0]; world_dir[1] = world_vect[1]; world_dir[2] = world_vect[2];
+	world_dir = glm::normalize(world_dir);
+
+	xcoord = world_dir[0]; ycoord = world_dir[1]; zcoord = world_dir[2]; wcoord = 0.0;
+
+	std::cout << "click world coordinates normalized: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
+
+
 }
 
 

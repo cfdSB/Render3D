@@ -27,6 +27,7 @@ private:
 	MousePositionData pos;
 
 	bool isMeshDisplayed = false;
+	bool mouseInDragMode = false;
 
 private:
 	void initGLFW();
@@ -52,6 +53,8 @@ public:
 	double getMouseYposition() { return pos.yPos; };
 	void setMouseXposition(double x) { pos.xPos = x; };
 	void setMouseYposition(double y) { pos.yPos = y; };
+	bool isMouseInDragMode() const { return mouseInDragMode; };
+	void setMouseInDragMode(bool mode) { this->mouseInDragMode = mode; };
 	const BoundingBox* getWindowObjectsBoundingBox() const;
 	void setMeshDisplayed(bool status) { isMeshDisplayed = status; };
 	bool getMeshDisplayed() const { return isMeshDisplayed; };
