@@ -34,6 +34,7 @@ public:
 	int getEdgeIndexCount() const { return verticesPerEdge; };
 	unsigned int getElementCount() const { return indexedElements.size(); };
 	unsigned int getEdgeCount() const { return indexedEdges.size(); };
+	const std::vector<Point3D*>& getVertices() const { return vertices; };
 
 	virtual std::unique_ptr<float[]> getVertexData() const;
 	virtual std::unique_ptr<unsigned int[]> getVertexIndexData() const;
@@ -49,7 +50,7 @@ protected:
 	void addIndexedElement(IndexedElement* element);
 	void addIndexedEdge(IndexedElement* edge);
 	
-	const std::vector<Point3D*>& getVertices() const { return vertices; };
+	//const std::vector<Point3D*>& getVertices() const { return vertices; };
 	const std::vector<IndexedElement*>& getIndexedElements() const { return indexedElements; };
 	const std::vector<Vec*>& getVertexNormals() const { return vertexNormals; };
 	const std::vector<IndexedElement*>& getIndexedEdges() const { return indexedEdges; };

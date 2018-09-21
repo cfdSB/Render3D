@@ -60,6 +60,7 @@ public:
 	bool getMeshDisplayed() const { return isMeshDisplayed; };
 	void setViewProjectionType(View::PROJECTION_TYPE type) { view.setProjectionType(type); };
 	void setProjectionWindowParameters(float left, float right, float bottom, float top, float nearby, float faraway);
+	const std::vector<RenderObject*>& getRenderObjects() const { return renderObjects; };
 };
 
 

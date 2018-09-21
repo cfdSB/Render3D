@@ -3,14 +3,14 @@
 
 #include <glad/glad.h>
 //#include <GLFW/glfw3.h>
-#include "DisplayableObject.h"
+#include "GeometryPart.h"
 #include <vector>
 
 class RenderObject
 {
 
 private:
-	DisplayableObject *part;
+	GeometryPart *part;
 
 	unsigned int VAO;
 	unsigned int vertexVBO, indicesEBO, normalsVBO;
@@ -22,7 +22,7 @@ private:
 	const int coordinatesPerNormal = 3;
 	 
 public:
-	RenderObject(DisplayableObject *part);
+	RenderObject(GeometryPart *part);
 	//RenderObject(unsigned int VAO, unsigned int shaderProgram, unsigned int drawType, unsigned int vertexCount);
 	virtual ~RenderObject();
 	unsigned int getVAO() const { return VAO; };
@@ -31,7 +31,7 @@ public:
 	unsigned int getVertexCount() const { return part->getVertexCount(); };
 	void setShaderProgram(unsigned int shaderProg);
 	void setDrawType(int drawType);
-	const DisplayableObject* getDisplayableObject() { return part; };
+	const GeometryPart* getDisplayableObject() { return part; };
 
 private:
 	void initializeData();

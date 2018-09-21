@@ -16,4 +16,8 @@ void key_callback(GLFWwindow* wnd, int key, int scancode, int action, int mods);
 float findZoomOffDistance(const BoundingBox* box);
 void calculateViewingVolume(const RenderWindow* window, float* volume);
 void computeClickLocation(RenderWindow *window, double xPos, double yPos);
+
+//debugging, testing functions
+void testTranformationPipeLine(RenderWindow* window);
+void testTriangleSegmentIntersection(RenderWindow* window);
 #endif

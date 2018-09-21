@@ -41,8 +41,13 @@ const std::vector<GeometryEntity::TriangleFace*> GeometryPart::getTriangleFaces(
 	std::vector<GeometryEntity::TriangleFace*> triangleFaces;
 
 	const std::vector<IndexedElement*> elements = getIndexedElements();
+	const std::vector<Vec*> normals = getVertexNormals();
+	std::cout << "Total normals: " << normals.size() << std::endl;
 
-	for (IndexedElement* triangle : elements) {
+	for (int i = 0; i < elements.size(); i++) {
+
+		IndexedElement* triangle = elements.at(i);
+
 		unsigned int p1Index = triangle->getIndices()[0];
 		unsigned int p2Index = triangle->getIndices()[1];
 		unsigned int p3Index = triangle->getIndices()[2];
@@ -60,6 +65,8 @@ const std::vector<GeometryEntity::TriangleFace*> GeometryPart::getTriangleFaces(
 
 		GeometryEntity::TriangleFace* face = new GeometryEntity::TriangleFace();
 		face->setEdges(e1, e2, e3);
+		Vec* normal = normals.at(i*3);
+		face->setNormal(normal);
 
 		triangleFaces.push_back(face);	
 	}

@@ -120,10 +120,10 @@ int main() {
 	RenderObject *ro = nullptr;
 	
 	if (createSectionCut == "true") {
-		ro = new RenderObject(pPart);
-		ro->setShaderProgram(shaderProg.getProgramID());
-		//ro->setShaderMeshProgram(shaderProgMeshColor.getProgramID());
-		ro->setDrawType(2);	//2 for line data
+		//ro = new RenderObject(pPart);
+		//ro->setShaderProgram(shaderProg.getProgramID());
+		////ro->setShaderMeshProgram(shaderProgMeshColor.getProgramID());
+		//ro->setDrawType(2);	//2 for line data
 	}
 	else {
 		ro = new RenderObject(part);

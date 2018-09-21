@@ -3,7 +3,7 @@
 
 
 
-RenderObject::RenderObject(DisplayableObject * part):part(part)
+RenderObject::RenderObject(GeometryPart * part):part(part)
 {
 	initializeData();
 }

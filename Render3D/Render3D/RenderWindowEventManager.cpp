@@ -296,7 +296,6 @@ void calculateViewingVolume(const RenderWindow* window, float * volume)
 
 void computeClickLocation(RenderWindow * window, double xPos, double yPos)
 {
-
 	double xcoord, ycoord, zcoord, wcoord;
 
 	//screen coordinates
@@ -320,37 +319,145 @@ void computeClickLocation(RenderWindow * window, double xPos, double yPos)
 	glm::vec4 vec_homo_clip(xcoord, ycoord, zcoord, wcoord);
 	std::cout << "click homo clip coordinates: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
 
+	glm::vec4 homo_clip_2(xcoord, ycoord, 1.0, 1.0);
+
 	//eye space or camera space coordinates
 	glm::mat4 projectionMatrix = window->getView().getProjectionMatrixGlm();
-	glm::vec4 eye_vect = glm::inverse(projectionMatrix)*vec_homo_clip;
+	glm::mat4 projectionInverse = glm::inverse(projectionMatrix);
+
+	glm::vec4 eye_vect = projectionInverse *vec_homo_clip;
+	glm::vec4 eye_vect_2 = projectionInverse *homo_clip_2;
 
 	//Now, we only needed to un - project the x, y part, so let's manually set the z,w part 
 	//to mean "forwards", and "not a point". z = -1.0 shows forward direction and w set to zero 
-	//means it is a direction vector and not a point.
+	//means it is a direction vector and not a point. 
+	//This is only true for perspective projection, it seems.
 
-	eye_vect[2] = -1.0;
-	eye_vect[3] = 0.0;
+	//eye_vect[2] = 0.0;
+	//eye_vect[3] = 1.0;
+
 	xcoord = eye_vect[0]; ycoord = eye_vect[1]; zcoord = eye_vect[2]; wcoord = eye_vect[3];
 	std::cout << "click eye coordinates: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
+	std::cout << "eye coords 2: " << eye_vect_2[0] << " " << eye_vect_2[1] << " " << eye_vect_2[2] << std::endl;
 
 	//convert to world coordinates
 	glm::mat4 viewMatrix = window->getView().getViewMatrixGlm();
-	glm::vec4 world_vect = glm::inverse(viewMatrix)*eye_vect;
+	glm::mat4 viewMatInverse = glm::inverse(viewMatrix);
+
+	glm::vec4 world_vect = viewMatInverse*eye_vect;
+	glm::vec4 world_vect_2 = viewMatInverse*eye_vect_2;
 
 	xcoord = world_vect[0]; ycoord = world_vect[1]; zcoord = world_vect[2]; wcoord = world_vect[3];
 
 	std::cout << "click world coordinates: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
+	std::cout << "world coords 2: " << world_vect_2[0] << " " << world_vect_2[1] << " " << world_vect_2[2] << std::endl;
 
-	//normalize the vector
-	glm::vec3 world_dir;
-	world_dir[0] = world_vect[0]; world_dir[1] = world_vect[1]; world_dir[2] = world_vect[2];
-	world_dir = glm::normalize(world_dir);
+	////normalize the vector
+	//glm::vec3 world_dir;d
+	//world_dir[0] = world_vect[0]; world_dir[1] = world_vect[1]; world_dir[2] = world_vect[2];
+	//world_dir = glm::normalize(world_dir);
 
-	xcoord = world_dir[0]; ycoord = world_dir[1]; zcoord = world_dir[2]; wcoord = 0.0;
+	//xcoord = world_dir[0]; ycoord = world_dir[1]; zcoord = world_dir[2]; wcoord = 0.0;
 
-	std::cout << "click world coordinates normalized: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
+	//std::cout << "click world coordinates normalized: " << xcoord << " " << ycoord << " " << zcoord << " " << wcoord << std::endl;
 
+	Point3D segmentPoint1(world_vect[0], world_vect[1], world_vect[2]);
+	Point3D segmentPoint2(world_vect_2[0], world_vect_2[1], world_vect_2[2]);
 
+	std::vector<GeometryEntity::TriangleFace*> allTriangles = window->getRenderObjects().at(0)->getDisplayableObject()->getTriangleFaces();
+	std::cout << "Total triangles: " << allTriangles.size() << std::endl;
+	std::vector<GeometryEntity::TriangleFace*> intersectionTriangles;
+
+	for (GeometryEntity::TriangleFace* face : allTriangles) {
+		Vec origin = *(face->getPoints().at(0)->getCoordinates());
+		Vec normal = *(face->getNormal());
+
+		std::unique_ptr<Point3D> interSection = GeometryUtility::computePlaneSegmentIntersection(origin, normal, segmentPoint1, segmentPoint2);
+
+		if (interSection.get() != nullptr) {
+			Point3D* p = interSection.get();
+			//Vec v = *(p->getCoordinates());
+			/*std::cout << "plane segment intersection point: " << std::endl;
+			DebugUtilities::printVector(v);*/
+			bool isInsideTriangle = GeometryUtility::isPointInsideTriangle(*p, face);
+			if (isInsideTriangle) {
+				std::cout << "point is inside triangle: " << isInsideTriangle << std::endl;
+				intersectionTriangles.push_back(face);
+			}
+		}
+		else {
+			//std::cout << "Plane segment intersection is null" << std::endl;
+		}
+	}
+
+	std::cout << "total triangle intersections: " << intersectionTriangles.size() << std::endl;
+}
+
+void testTranformationPipeLine(RenderWindow * window)
+{
+	const std::vector<Point3D*> allPoints = window->getRenderObjects().at(0)->getDisplayableObject()->getVertices();
+
+	Matrix viewMat = window->getView().getLookAtMatrix();
+	std::cout << "View Matrix" << std::endl;
+	DebugUtilities::printMatrix(viewMat);
+
+	Matrix projectionMat = window->getView().getProjectionMatrix();
+	std::cout << "Projection Matrix" << std::endl;
+	DebugUtilities::printMatrix(projectionMat);
+
+	for (int i = 0; i < allPoints.size(); i++) {
+		std::cout << "---------point" << i << "----------" << std::endl;
+		Point3D* pnt = allPoints.at(i);
+		Matrix pointMat(4, 1);
+		pointMat.setAt(1, 1, pnt->getCoordinates()->getElementAt(1));
+		pointMat.setAt(2, 1, pnt->getCoordinates()->getElementAt(2));
+		pointMat.setAt(3, 1, pnt->getCoordinates()->getElementAt(3));
+		pointMat.setAt(4, 1, 1.0);
+
+		Matrix eyeSpacePoint = viewMat * pointMat;
+		std::cout << "eye space coordinates " << std::endl;
+		DebugUtilities::printMatrix(eyeSpacePoint);
+
+		Matrix projectionSpacePoint = projectionMat * eyeSpacePoint;
+		std::cout << "projection space coordinates " << std::endl;
+		DebugUtilities::printMatrix(projectionSpacePoint);
+
+	}
+}
+
+void testTriangleSegmentIntersection(RenderWindow * window)
+{
+	GeometryEntity::Edge e1, e2, e3;
+	Point3D p1(0.0, 0.0, 0.0);
+	Point3D p2(5.0, 0.0, 0.0);
+	Point3D p3(2.5, 5.0, 0.0);
+	Vec normal(3);
+	normal.addElement(1, 0.0).addElement(2, 0.0).addElement(3, -1.0);
+	Vec origin(3);
+	origin.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+
+	Point3D segmentPoint1(0, 5.0, -1.0);
+	Point3D segmentPoint2(0, 5.0, 1.0);
+
+	e1.setPoints(&p1, &p2);
+	e2.setPoints(&p2, &p3);
+	e3.setPoints(&p3, &p1);
+
+	GeometryEntity::TriangleFace triangleFace;
+	triangleFace.setEdges(&e1, &e2, &e3);
+
+	std::unique_ptr<Point3D> interSection = GeometryUtility::computePlaneSegmentIntersection(origin, normal, segmentPoint1, segmentPoint2);
+	if (interSection.get() != nullptr) {
+		Point3D* p = interSection.get();
+		Vec v = *(p->getCoordinates());
+		std::cout << "plane segment intersection point: " << std::endl;
+		DebugUtilities::printVector(v);
+		bool isInsideTriangle = GeometryUtility::isPointInsideTriangle(*(interSection.get()), &triangleFace);
+		std::cout << "point is inside triangle: " << isInsideTriangle << std::endl;
+	}
+	else {
+		std::cout << "Plane segment intersection is null" << std::endl;
+	}
 }
 
 

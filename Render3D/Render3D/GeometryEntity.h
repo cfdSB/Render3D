@@ -21,12 +21,16 @@ public:
 	class TriangleFace {
 	private:
 		Edge * edge1, *edge2, *edge3;
+		Vec* normal;
 
 	public:
 		std::vector<GeometryEntity::Edge*> getEdges() const;
 		void setEdges(GeometryEntity::Edge* e1, GeometryEntity::Edge* e2, GeometryEntity::Edge* e3) { edge1 = e1;
 		edge2 = e2; edge3 = e3;
 		};
+		void setNormal(Vec* v) { normal = v; };
+		std::vector<const Point3D*> getPoints() const;
+		const Vec* getNormal() { return normal; };
 	};
 };
 

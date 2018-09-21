@@ -20,3 +20,12 @@ std::vector<GeometryEntity::Edge*> GeometryEntity::TriangleFace::getEdges() cons
 
 	return edges;
 }
+
+std::vector<const Point3D*> GeometryEntity::TriangleFace::getPoints() const
+{
+	std::vector<const Point3D*> points;
+	for (Edge* e : getEdges()) {
+		points.push_back(e->getPoint1());
+	}
+	return points;
+}
