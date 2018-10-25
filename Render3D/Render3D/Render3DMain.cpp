@@ -15,6 +15,7 @@
 #include "CadImporter.h"
 #include "ShaderProgram.h"
 #include "PlaneSectionPart.h"
+#include "ShaderManager.h"
 
 //---------
 //method declarations
@@ -84,8 +85,9 @@ int main() {
 	//-------
 	//compile and link shader programs
 	//-------
-	ShaderProgram shaderProg("vShader_transformations_color.vs", "fShader_transformations_color.fs");
+	//ShaderProgram shaderProg("vShader_transformations_color.vs", "fShader_transformations_color.fs");
 	//ShaderProgram shaderProgMeshColor("vShader_transformations_color.vs", "fShader_transformations_meshcolor.fs");
+	ShaderManager shaderManager;
 
 
 	//-----
@@ -127,7 +129,7 @@ int main() {
 	}
 	else {
 		ro = new RenderObject(part);
-		ro->setShaderProgram(shaderProg.getProgramID());
+		ro->setShaderProgram(shaderManager.getObjectDisplayShaderProgram());
 		//ro->setShaderMeshProgram(shaderProgMeshColor.getProgramID());
 		ro->setDrawType(1); //1 for triangular element data
 	}
