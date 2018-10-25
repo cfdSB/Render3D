@@ -10,6 +10,7 @@
 #include "RenderWindowEventManager.h"
 #include <algorithm>
 #include "GeometryUtility.h"
+#include "ShaderManager.h"
 
 class RenderWindow
 {
@@ -28,6 +29,8 @@ private:
 
 	bool isMeshDisplayed = false;
 	bool mouseInDragMode = false;
+
+	ShaderManager *shaderManager = nullptr;
 
 private:
 	void initGLFW();
@@ -61,6 +64,7 @@ public:
 	void setViewProjectionType(View::PROJECTION_TYPE type) { view.setProjectionType(type); };
 	void setProjectionWindowParameters(float left, float right, float bottom, float top, float nearby, float faraway);
 	const std::vector<RenderObject*>& getRenderObjects() const { return renderObjects; };
+	void setShaderManager(ShaderManager* manager) { shaderManager = manager; };
 };
 
 

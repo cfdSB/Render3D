@@ -19,10 +19,6 @@ RenderObject::~RenderObject()
 
 }
 
-void RenderObject::setShaderProgram(unsigned int shaderProg)
-{
-	shaderProgram = shaderProg;
-}
 
 
 void RenderObject::setDrawType(int drawType)

@@ -185,13 +185,13 @@ void RenderWindow::render() {
 	//loop through VAOs and draw 
 	//----------
 	for (RenderObject* rb : renderObjects) {
-
-		glUseProgram(rb->getShaderProgram());
-		unsigned int uniformLocationView = glGetUniformLocation(rb->getShaderProgram(), "viewMat");
-		unsigned int uniformLightLocation = glGetUniformLocation(rb->getShaderProgram(), "lightPos");
-		unsigned int uniformLocationProj = glGetUniformLocation(rb->getShaderProgram(), "projectionMat");
-		unsigned int uniformObjectColor = glGetUniformLocation(rb->getShaderProgram(), "objectColor");
-		unsigned int isMeshDisplay = glGetUniformLocation(rb->getShaderProgram(), "isMeshDisplay");
+		unsigned int objectDisplayShaderProgram = shaderManager->getObjectDisplayShaderProgram();
+		glUseProgram(objectDisplayShaderProgram);
+		unsigned int uniformLocationView = glGetUniformLocation(objectDisplayShaderProgram, "viewMat");
+		unsigned int uniformLightLocation = glGetUniformLocation(objectDisplayShaderProgram, "lightPos");
+		unsigned int uniformLocationProj = glGetUniformLocation(objectDisplayShaderProgram, "projectionMat");
+		unsigned int uniformObjectColor = glGetUniformLocation(objectDisplayShaderProgram, "objectColor");
+		unsigned int isMeshDisplay = glGetUniformLocation(objectDisplayShaderProgram, "isMeshDisplay");
 
 		glBindVertexArray(rb->getVAO());
 		GLenum drawType;

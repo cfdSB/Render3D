@@ -14,7 +14,6 @@ private:
 
 	unsigned int VAO;
 	unsigned int vertexVBO, indicesEBO, normalsVBO;
-	unsigned int shaderProgram;
 	unsigned int drawType;	//currently int, change to enum or so later
 
 
@@ -26,10 +25,8 @@ public:
 	//RenderObject(unsigned int VAO, unsigned int shaderProgram, unsigned int drawType, unsigned int vertexCount);
 	virtual ~RenderObject();
 	unsigned int getVAO() const { return VAO; };
-	unsigned int getShaderProgram() const { return shaderProgram; };
 	unsigned int getDrawType() const { return drawType; };
 	unsigned int getVertexCount() const { return part->getVertexCount(); };
-	void setShaderProgram(unsigned int shaderProg);
 	void setDrawType(int drawType);
 	const GeometryPart* getDisplayableObject() { return part; };
 

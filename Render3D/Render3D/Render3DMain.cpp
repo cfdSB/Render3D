@@ -88,6 +88,7 @@ int main() {
 	//ShaderProgram shaderProg("vShader_transformations_color.vs", "fShader_transformations_color.fs");
 	//ShaderProgram shaderProgMeshColor("vShader_transformations_color.vs", "fShader_transformations_meshcolor.fs");
 	ShaderManager shaderManager;
+	window.setShaderManager(&shaderManager);
 
 
 	//-----
@@ -129,7 +130,7 @@ int main() {
 	}
 	else {
 		ro = new RenderObject(part);
-		ro->setShaderProgram(shaderManager.getObjectDisplayShaderProgram());
+		//ro->setShaderProgram(shaderManager.getObjectDisplayShaderProgram());
 		//ro->setShaderMeshProgram(shaderProgMeshColor.getProgramID());
 		ro->setDrawType(1); //1 for triangular element data
 	}
