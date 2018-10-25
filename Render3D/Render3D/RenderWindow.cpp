@@ -191,7 +191,6 @@ void RenderWindow::render() {
 		unsigned int uniformLightLocation = glGetUniformLocation(objectDisplayShaderProgram, "lightPos");
 		unsigned int uniformLocationProj = glGetUniformLocation(objectDisplayShaderProgram, "projectionMat");
 		unsigned int uniformObjectColor = glGetUniformLocation(objectDisplayShaderProgram, "objectColor");
-		unsigned int isMeshDisplay = glGetUniformLocation(objectDisplayShaderProgram, "isMeshDisplay");
 
 		glBindVertexArray(rb->getVAO());
 		GLenum drawType;
@@ -215,7 +214,6 @@ void RenderWindow::render() {
 		glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, view.getProjectionMatrix().getDataPtr());
 		glUniform3fv(uniformLightLocation, 1, view.getCameraPosition().getDataPtr());
 		glUniform3fv(uniformObjectColor, 1, objectColor.getDataPtr());
-		glUniform1i(isMeshDisplay, 0);	//0 for false
 
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		glPolygonOffset(1.0, 1.0);
@@ -226,12 +224,22 @@ void RenderWindow::render() {
 		//display mesh 
 		if (isMeshDisplayed == true) {
 
-			GLenum drawType = GL_TRIANGLES;
-			Vec meshColor(3);
-			meshColor.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+			unsigned int meshDisplayShaderProgram = shaderManager->getMeshDisplayShaderProgram();
+			glUseProgram(meshDisplayShaderProgram);
+			unsigned int uniformLocationViewMesh = glGetUniformLocation(meshDisplayShaderProgram, "viewMat");
+			unsigned int uniformLocationProjMesh = glGetUniformLocation(meshDisplayShaderProgram, "projectionMat");
+			unsigned int uniformObjectColorMesh = glGetUniformLocation(meshDisplayShaderProgram, "objectColor");
 
-			glUniform3fv(uniformObjectColor, 1, meshColor.getDataPtr());
-			glUniform1i(isMeshDisplay, 1);	//0 for false
+			glBindVertexArray(rb->getVAO());
+
+			GLenum drawType = GL_TRIANGLES;
+
+			Vec meshColor(3);
+			meshColor.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0); //black
+
+			glUniform3fv(uniformObjectColorMesh, 1, meshColor.getDataPtr());
+			glUniformMatrix4fv(uniformLocationViewMesh, 1, GL_TRUE, view.getLookAtMatrix().getDataPtr());
+			glUniformMatrix4fv(uniformLocationProjMesh, 1, GL_TRUE, view.getProjectionMatrix().getDataPtr());
 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
