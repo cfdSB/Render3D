@@ -71,6 +71,12 @@ Vec View::getProjectionWindowSize() const
 	return windowsize;
 }
 
+const Matrix View::getMVPMatrix() const
+{ 
+	return getProjectionMatrix() * getLookAtMatrix();
+	
+}
+
 void View::computeLookAtMatrix()
 {
 	Vec tmp = position - target;
