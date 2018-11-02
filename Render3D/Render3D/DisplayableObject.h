@@ -38,6 +38,7 @@ public:
 
 	virtual std::unique_ptr<float[]> getVertexData() const;
 	virtual std::unique_ptr<unsigned int[]> getVertexIndexData() const;
+	virtual std::unique_ptr<float[]> getVertexIdData() const;
 	virtual std::unique_ptr<float[]> getNormalsData() const;
 	virtual std::unique_ptr<unsigned int[]> getEdgeIndexData() const;
 

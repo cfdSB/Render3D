@@ -13,7 +13,7 @@ private:
 	GeometryPart *part;
 
 	unsigned int VAO;
-	unsigned int vertexVBO, indicesEBO, normalsVBO;
+	unsigned int vertexVBO, indicesEBO, normalsVBO, vertexIdVBO;
 	unsigned int drawType;	//currently int, change to enum or so later
 
 

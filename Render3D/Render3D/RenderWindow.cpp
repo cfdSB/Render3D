@@ -29,6 +29,8 @@ RenderWindow::RenderWindow()
 	//glfwSetWindowUserPointer(window, window);
 	initGladLoader();
 	configureGlobalOpenglState();
+
+	createSelectionBuffer();
 	
 }
 
@@ -49,6 +51,12 @@ GLFWwindow* RenderWindow::createGLFWWindow() {
 	}
 
 	return window;
+}
+
+void RenderWindow::createSelectionBuffer()
+{
+	selectionBuffer = new TextureFrameBuffer(view.getScreenWidth(), view.getScreenHeight());
+
 }
 
 void RenderWindow::initGladLoader() {
@@ -174,18 +182,52 @@ void RenderWindow::setProjectionWindowParameters(float left, float right, float 
 	view.setProjectionWindowSize(left, right, bottom, top, nearby, faraway);
 }
 
+unsigned int RenderWindow::getFaceIDAtLocation(unsigned int xPos, unsigned int yPos)
+{
+	TextureFrameBuffer::PixelInfo info = selectionBuffer->readPixel(xPos, yPos);
+	return static_cast<unsigned int> (info.f1);
+}
+
 
 void RenderWindow::render() {
-	//render background
-	//----------------
-	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClear(GL_DEPTH_BUFFER_BIT);
 
 	//-------------------------
 	//get transformation matrix
 	//-------------------------
 	Matrix mvp = view.getMVPMatrix();
+
+
+	//----------------------
+	//first render on the texture buffer for element IDs. It doesn't affect the visual display
+	//----------------------
+	glBindFramebuffer(GL_FRAMEBUFFER, selectionBuffer->getFBO());
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	
+	unsigned int elementSelectionShaderProgram = shaderManager->getElementSelectionProgram();
+	glUseProgram(elementSelectionShaderProgram);
+	unsigned int uniformLocationMvpMatSelection = glGetUniformLocation(elementSelectionShaderProgram, "mvpMat");
+	glUniformMatrix4fv(uniformLocationMvpMatSelection, 1, GL_TRUE, mvp.getDataPtr());
+
+	for (RenderObject* rb : renderObjects) {
+		
+		glBindVertexArray(rb->getVAO());
+		GLenum drawType = GL_TRIANGLES;
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
+	}
+
+	//bind the default buffer back
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//--------------------------------
+	//render on the default (display) buffer
+	//----------------
+	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	//----------
 	//loop through VAOs and draw 
