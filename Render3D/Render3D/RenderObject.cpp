@@ -55,9 +55,9 @@ void RenderObject::createVAO()
 	std::cout << "Total indices:" << totalIndices << std::endl;
 	std::cout << "Total normalCorrd:" << totalNormalCoordinates << std::endl;
 
-	for (unsigned int i = 0; i < totalVertices; i++) {
+	/*for (unsigned int i = 0; i < totalVertices; i++) {
 		std::cout << "vertex ID: " << vertexIDdata.get()[i] << std::endl;
-	}
+	}*/
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &vertexVBO);

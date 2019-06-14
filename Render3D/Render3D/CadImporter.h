@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include "GeometryPart.h"
+#include "LeafMeshPart.h"
+#include <vector>
 class CadImporter
 {
 public:
@@ -13,6 +15,7 @@ public:
 	CadImporter();
 	~CadImporter();
 	GeometryPart* importSTL(std::string& fileName);
+	LeafMeshPart* importSTLData(std::string& fileName);
 };
 #endif
 
