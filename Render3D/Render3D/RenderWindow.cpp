@@ -29,6 +29,8 @@ RenderWindow::RenderWindow()
 	//glfwSetWindowUserPointer(window, window);
 	initGladLoader();
 	configureGlobalOpenglState();
+
+	createSelectionBuffer();
 	
 }
 
@@ -49,6 +51,12 @@ GLFWwindow* RenderWindow::createGLFWWindow() {
 	}
 
 	return window;
+}
+
+void RenderWindow::createSelectionBuffer()
+{
+	selectionBuffer = new TextureFrameBuffer(view.getScreenWidth(), view.getScreenHeight());
+
 }
 
 void RenderWindow::initGladLoader() {
@@ -174,24 +182,62 @@ void RenderWindow::setProjectionWindowParameters(float left, float right, float 
 	view.setProjectionWindowSize(left, right, bottom, top, nearby, faraway);
 }
 
+unsigned int RenderWindow::getFaceIDAtLocation(unsigned int xPos, unsigned int yPos)
+{
+	TextureFrameBuffer::PixelInfo info = selectionBuffer->readPixel(xPos, yPos);
+	return static_cast<unsigned int> (info.f1);
+}
+
 
 void RenderWindow::render() {
-	//render background
+
+	//-------------------------
+	//get transformation matrix
+	//-------------------------
+	Matrix mvp = view.getMVPMatrix();
+
+
+	//----------------------
+	//first render on the texture buffer for element IDs. It doesn't affect the visual display
+	//----------------------
+	glBindFramebuffer(GL_FRAMEBUFFER, selectionBuffer->getFBO());
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	
+	unsigned int elementSelectionShaderProgram = shaderManager->getElementSelectionProgram();
+	glUseProgram(elementSelectionShaderProgram);
+	unsigned int uniformLocationMvpMatSelection = glGetUniformLocation(elementSelectionShaderProgram, "mvpMat");
+	glUniformMatrix4fv(uniformLocationMvpMatSelection, 1, GL_TRUE, mvp.getDataPtr());
+
+	for (RenderObject* rb : renderObjects) {
+		
+		glBindVertexArray(rb->getVAO());
+		GLenum drawType = GL_TRIANGLES;
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);
+	}
+
+	//bind the default buffer back
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//--------------------------------
+	//render on the default (display) buffer
 	//----------------
 	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClear(GL_DEPTH_BUFFER_BIT);
+
 	//----------
 	//loop through VAOs and draw 
 	//----------
 	for (RenderObject* rb : renderObjects) {
-
-		glUseProgram(rb->getShaderProgram());
-		unsigned int uniformLocationView = glGetUniformLocation(rb->getShaderProgram(), "viewMat");
-		unsigned int uniformLightLocation = glGetUniformLocation(rb->getShaderProgram(), "lightPos");
-		unsigned int uniformLocationProj = glGetUniformLocation(rb->getShaderProgram(), "projectionMat");
-		unsigned int uniformObjectColor = glGetUniformLocation(rb->getShaderProgram(), "objectColor");
-		unsigned int isMeshDisplay = glGetUniformLocation(rb->getShaderProgram(), "isMeshDisplay");
+		unsigned int objectDisplayShaderProgram = shaderManager->getObjectDisplayShaderProgram();
+		glUseProgram(objectDisplayShaderProgram);
+		unsigned int uniformLightLocation = glGetUniformLocation(objectDisplayShaderProgram, "lightPos");
+		unsigned int uniformLocationMvpMat = glGetUniformLocation(objectDisplayShaderProgram, "mvpMat");
+		unsigned int uniformObjectColor = glGetUniformLocation(objectDisplayShaderProgram, "objectColor");
 
 		glBindVertexArray(rb->getVAO());
 		GLenum drawType;
@@ -211,11 +257,9 @@ void RenderWindow::render() {
 		//of openGL matrix. Hence, we transpose the matrix to bring it to the correct form in
 		//openGL
 
-		glUniformMatrix4fv(uniformLocationView, 1, GL_TRUE, view.getLookAtMatrix().getDataPtr());
-		glUniformMatrix4fv(uniformLocationProj, 1, GL_TRUE, view.getProjectionMatrix().getDataPtr());
+		glUniformMatrix4fv(uniformLocationMvpMat, 1, GL_TRUE, mvp.getDataPtr());
 		glUniform3fv(uniformLightLocation, 1, view.getCameraPosition().getDataPtr());
 		glUniform3fv(uniformObjectColor, 1, objectColor.getDataPtr());
-		glUniform1i(isMeshDisplay, 0);	//0 for false
 
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		glPolygonOffset(1.0, 1.0);
@@ -226,12 +270,20 @@ void RenderWindow::render() {
 		//display mesh 
 		if (isMeshDisplayed == true) {
 
-			GLenum drawType = GL_TRIANGLES;
-			Vec meshColor(3);
-			meshColor.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0);
+			unsigned int meshDisplayShaderProgram = shaderManager->getMeshDisplayShaderProgram();
+			glUseProgram(meshDisplayShaderProgram);
+			unsigned int uniformLocationMvpMesh = glGetUniformLocation(meshDisplayShaderProgram, "mvpMat");
+			unsigned int uniformObjectColorMesh = glGetUniformLocation(meshDisplayShaderProgram, "objectColor");
 
-			glUniform3fv(uniformObjectColor, 1, meshColor.getDataPtr());
-			glUniform1i(isMeshDisplay, 1);	//0 for false
+			glBindVertexArray(rb->getVAO());
+
+			GLenum drawType = GL_TRIANGLES;
+
+			Vec meshColor(3);
+			meshColor.addElement(1, 0.0).addElement(2, 0.0).addElement(3, 0.0); //black
+
+			glUniform3fv(uniformObjectColorMesh, 1, meshColor.getDataPtr());
+			glUniformMatrix4fv(uniformLocationMvpMesh, 1, GL_TRUE, mvp.getDataPtr());
 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glDrawElements(drawType, rb->getVertexCount(), GL_UNSIGNED_INT, 0);

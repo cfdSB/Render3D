@@ -21,6 +21,7 @@ private:
 	Matrix positionMat = Matrix(4, 4);
 	Matrix projectionPerspective = Matrix(4, 4);
 	Matrix projectionParallel = Matrix(4, 4);
+	Matrix mvpMatrix = Matrix(4, 4);
 
 	float projectionAngle = 45.0;
 	unsigned int scrWidth=800, scrHeight=600;
@@ -51,6 +52,7 @@ public:
 	void setProjectionWindowSize(float left, float right, float bottom, float top, float nearby, float faraway);
 	PROJECTION_TYPE getProjectionType() const { return projectionType; };
 	Vec getProjectionWindowSize() const;
+	const Matrix getMVPMatrix() const;
 
 private:
 	void computeLookAtMatrix();

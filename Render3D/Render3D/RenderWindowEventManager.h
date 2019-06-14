@@ -20,4 +20,5 @@ void computeClickLocation(RenderWindow *window, double xPos, double yPos);
 //debugging, testing functions
 void testTranformationPipeLine(RenderWindow* window);
 void testTriangleSegmentIntersection(RenderWindow* window);
+void findClickedFaceID(RenderWindow *window, unsigned int xPos, unsigned int yPos);
 #endif

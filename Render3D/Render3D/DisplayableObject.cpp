@@ -154,6 +154,24 @@ std::unique_ptr<unsigned int[]> DisplayableObject::getVertexIndexData() const
 	return vertexIndexData;
 }
 
+std::unique_ptr<float[]> DisplayableObject::getVertexIdData() const
+{
+	unsigned int totalVertexIDs = indexedElements.size()*verticesPerElement;
+	std::unique_ptr<float[]> vertexIDdata(new float[totalVertexIDs]);
+
+	for (unsigned int i = 0; i < indexedElements.size(); i++) {
+
+		unsigned int loc = i * verticesPerElement;
+		unsigned int indexID = indexedElements.at(i)->getElementID();
+
+		for (int j = 0; j < verticesPerElement; j++) {
+			vertexIDdata[loc + j] = static_cast<float>(indexID);
+		}
+	}
+
+	return vertexIDdata;
+}
+
 std::unique_ptr<float[]> DisplayableObject::getNormalsData() const
 {
 	unsigned int totalNormalCoordinates = getVertexNormals().size()*coordinatesPerNormal;

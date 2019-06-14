@@ -10,6 +10,8 @@
 #include "RenderWindowEventManager.h"
 #include <algorithm>
 #include "GeometryUtility.h"
+#include "ShaderManager.h"
+#include "TextureFrameBuffer.h"
 
 class RenderWindow
 {
@@ -19,6 +21,7 @@ private:
 	const unsigned int HEIGHT = 600;
 	std::vector<RenderObject*> renderObjects;
 	View view;
+	TextureFrameBuffer *selectionBuffer;
 
 	struct MousePositionData {
 		double xPos=0.0, yPos = 0.0;
@@ -29,10 +32,13 @@ private:
 	bool isMeshDisplayed = false;
 	bool mouseInDragMode = false;
 
+	ShaderManager *shaderManager = nullptr;
+
 private:
 	void initGLFW();
 	void processInput(GLFWwindow *window);
 	GLFWwindow* createGLFWWindow();
+	void createSelectionBuffer();
 	void initGladLoader();
 	void render();
 	void configureGlobalOpenglState();
@@ -61,6 +67,8 @@ public:
 	void setViewProjectionType(View::PROJECTION_TYPE type) { view.setProjectionType(type); };
 	void setProjectionWindowParameters(float left, float right, float bottom, float top, float nearby, float faraway);
 	const std::vector<RenderObject*>& getRenderObjects() const { return renderObjects; };
+	void setShaderManager(ShaderManager* manager) { shaderManager = manager; };
+	unsigned int getFaceIDAtLocation(unsigned int xPos, unsigned int yPos);
 };
 
 

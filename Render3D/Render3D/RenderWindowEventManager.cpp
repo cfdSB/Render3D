@@ -163,7 +163,8 @@ void mouse_button_callback(GLFWwindow * wnd, int button, int action, int mods)
 			double xpos, ypos;
 			glfwGetCursorPos(wnd, &xpos, &ypos);
 			std::cout << "Mouse clicked at " << xpos << ", " << ypos << std::endl;
-			computeClickLocation(window, xpos, ypos);
+			//computeClickLocation(window, xpos, ypos);
+			findClickedFaceID(window, (unsigned int)xpos, (unsigned int)ypos);
 		}
 		else {
 			window->setMouseInDragMode(false);
@@ -458,6 +459,12 @@ void testTriangleSegmentIntersection(RenderWindow * window)
 	else {
 		std::cout << "Plane segment intersection is null" << std::endl;
 	}
+}
+
+void findClickedFaceID(RenderWindow *window, unsigned int xPos, unsigned int yPos)
+{
+	unsigned int faceId = window->getFaceIDAtLocation(xPos, yPos);
+	std::cout << "Clicked Face ID is: " << faceId << std::endl;
 }
 
 
